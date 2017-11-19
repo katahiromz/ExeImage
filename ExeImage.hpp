@@ -125,6 +125,11 @@ public:
     bool get_delay_load_entries(std::vector<ImgDelayDescr>& entries);
 
     //
+    // resource
+    //
+    IMAGE_RESOURCE_DIRECTORY *get_resource();
+
+    //
     // dumping
     //
     void dump_dos(std::stringstream& ss);
@@ -622,6 +627,15 @@ inline bool ExeImage::get_delay_load_entries(std::vector<ImgDelayDescr>& entries
     return true;
 }
 
+inline IMAGE_RESOURCE_DIRECTORY *ExeImage::get_resource()
+{
+    IMAGE_DATA_DIRECTORY *dir = get_data_dir(IMAGE_DIRECTORY_ENTRY_RESOURCE);
+    if (!dir)
+        return NULL;
+
+    return map_image<IMAGE_RESOURCE_DIRECTORY>(dir->VirtualAddress);
+}
+
 inline bool ExeImage::rva_in_entry(DWORD rva, DWORD index) const
 {
     assert(m_data_dir);
@@ -880,7 +894,10 @@ inline void ExeImage::dump_export(std::stringstream& ss)
 
     std::vector<ExportSymbol> symbols;
     if (!get_export_symbols(symbols))
+    {
+        ss << "No export table.\n";
         return;
+    }
 
     for (size_t i = 0; i < symbols.size(); ++i)
     {
@@ -906,7 +923,7 @@ inline void ExeImage::dump_delay_load(std::stringstream& ss)
 
     for (size_t i = 0; i < entries.size(); ++i)
     {
-        ss << "    Entry #" << i << "\n";
+        ss << "Entry #" << i << "\n";
         EXE_IMAGE_DUMP(ss, grAttrs, entries[i]);
         EXE_IMAGE_DUMP(ss, rvaDLLName, entries[i]);
         EXE_IMAGE_DUMP(ss, rvaHmod, entries[i]);
