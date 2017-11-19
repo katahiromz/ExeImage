@@ -25,6 +25,7 @@ int main(int argc, char **argv)
     image.dump_nt(ss);
     image.dump_import(ss);
     image.dump_export(ss);
+    image.dump_delay_load(ss);
     puts(ss.str().c_str());
 
     return 0;
