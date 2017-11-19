@@ -1,4 +1,4 @@
-// ExeImageDumpTest.cpp
+// ExeImageDumpTest.cpp --- Test for ExeImage
 ////////////////////////////////////////////////////////////////////////////
 
 #define _CRT_SECURE_NO_WARNINGS
