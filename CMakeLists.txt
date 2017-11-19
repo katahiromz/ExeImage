@@ -66,7 +66,4 @@ if (WIN32)
     add_test(NAME Gdi32Test COMMAND ExeImageDumpTest "C:\\Windows\\system32\\gdi32.dll")
 endif()
 
-# install the program
-install(TARGETS ExeImageDumpTest DESTINATION bin)
-
 ##############################################################################
