@@ -2,7 +2,7 @@
 ////////////////////////////////////////////////////////////////////////////
 
 #ifndef EXE_IMAGE_HPP
-#define EXE_IMAGE_HPP   7       // Version 7
+#define EXE_IMAGE_HPP   9       // Version 9
 
 #ifdef _WIN32
     #include <windows.h>        // Windows API
@@ -69,66 +69,65 @@ public:
     bool load(const char *filename);
     void unload();
 
-    bool is_loaded();
-    bool is_64bit();
-    DWORD size_of_image();
-    DWORD size_of_headers();
-    DWORD number_of_sections();
+    // attributes
+    bool is_loaded() const;
+    bool is_64bit() const;
+    DWORD size_of_file() const;
+    DWORD size_of_image() const;
+    DWORD size_of_headers() const;
+    DWORD number_of_sections() const;
 
-    //
     // headers
-    //
-    IMAGE_DOS_HEADER *get_dos();
-    IMAGE_NT_HEADERS32 *get_nt32();
-    IMAGE_NT_HEADERS64 *get_nt64();
-    IMAGE_NT_HEADERS *get_nt();
-    IMAGE_OPTIONAL_HEADER32 *get_optional32();
-    IMAGE_OPTIONAL_HEADER64 *get_optional64();
-    IMAGE_OPTIONAL_HEADER *get_optional();
+    IMAGE_DOS_HEADER *get_dos() const;
+    IMAGE_NT_HEADERS32 *get_nt32() const;
+    IMAGE_NT_HEADERS64 *get_nt64() const;
+    IMAGE_NT_HEADERS *get_nt() const;
+    IMAGE_OPTIONAL_HEADER32 *get_optional32() const;
+    IMAGE_OPTIONAL_HEADER64 *get_optional64() const;
+    IMAGE_OPTIONAL_HEADER *get_optional() const;
 
-    //
     // data access
-    //
-    IMAGE_DATA_DIRECTORY *get_data_dir();
-    IMAGE_DATA_DIRECTORY *get_data_dir(DWORD dwIndex);
-    BYTE *get_data(DWORD dwIndex);
-    BYTE *get_data(DWORD dwIndex, DWORD& dwSize);
-    template <typename T_STRUCT>
-    T_STRUCT *get_typed_data(DWORD dwIndex);
+    IMAGE_DATA_DIRECTORY *get_data_dir() const;
+    IMAGE_DATA_DIRECTORY *get_data_dir(DWORD dwIndex) const;
+          BYTE *get_data(DWORD dwIndex);
+    const BYTE *get_data(DWORD dwIndex) const;
+          BYTE *get_data(DWORD dwIndex, DWORD& dwSize);
+    const BYTE *get_data(DWORD dwIndex, DWORD& dwSize) const;
 
-    bool rva_in_entry(DWORD rva, DWORD index);
     template <typename T_STRUCT>
-    T_STRUCT *map_image(DWORD offset);
+          T_STRUCT *get_typed_data(DWORD dwIndex);
     template <typename T_STRUCT>
-    T_STRUCT *map_file(DWORD offset);
+    const T_STRUCT *get_typed_data(DWORD dwIndex) const;
 
-    //
+    bool rva_in_entry(DWORD rva, DWORD index) const;
+
+    template <typename T_STRUCT>
+          T_STRUCT *map_file(DWORD offset);
+    template <typename T_STRUCT>
+    const T_STRUCT *map_file(DWORD offset) const;
+
+    template <typename T_STRUCT>
+          T_STRUCT *map_image(DWORD offset);
+    template <typename T_STRUCT>
+    const T_STRUCT *map_image(DWORD offset) const;
+
     // import
-    //
     IMAGE_IMPORT_DESCRIPTOR *get_import();
     bool get_import_dll_names(std::vector<char *>& names);
     bool get_import_symbols(DWORD dll_index, std::vector<ImportSymbol>& symbols);
 
-    //
     // export
-    //
     IMAGE_EXPORT_DIRECTORY *get_export();
     bool get_export_symbols(std::vector<ExportSymbol>& symbols);
 
-    //
     // delay load
-    //
     ImgDelayDescr *get_delay_load();
     bool get_delay_load_entries(std::vector<ImgDelayDescr>& entries);
 
-    //
     // resource
-    //
     IMAGE_RESOURCE_DIRECTORY *get_resource();
 
-    //
     // dumping
-    //
     void dump_all(std::stringstream& ss);
     void dump_dos(std::stringstream& ss);
     void dump_nt(std::stringstream& ss);
@@ -139,6 +138,7 @@ public:
     void dump_delay_load(std::stringstream& ss);
 
 protected:
+    bool              m_is_64bit;
     std::string       m_filename;
     std::vector<BYTE> m_file_image;
     std::vector<BYTE> m_loaded_image;
@@ -157,13 +157,13 @@ protected:
 // inlines
 
 inline ExeImage::ExeImage() :
-    m_dos(NULL), m_nt(NULL), m_file(NULL),
+    m_is_64bit(false), m_dos(NULL), m_nt(NULL), m_file(NULL),
     m_section_table(NULL), m_data_dir(NULL)
 {
 }
 
 inline ExeImage::ExeImage(const char *filename) :
-    m_dos(NULL), m_nt(NULL), m_file(NULL),
+    m_is_64bit(false), m_dos(NULL), m_nt(NULL), m_file(NULL),
     m_section_table(NULL), m_data_dir(NULL)
 {
     load(filename);
@@ -171,6 +171,7 @@ inline ExeImage::ExeImage(const char *filename) :
 
 inline void ExeImage::unload()
 {
+    m_is_64bit = false;
     m_dos = NULL;
     m_nt = NULL;
     m_file = NULL;
@@ -237,11 +238,13 @@ inline bool ExeImage::_do_map()
 
     if (IMAGE_NT_HEADERS64 *nt64 = get_nt64())
     {
+        m_is_64bit = true;
         m_section_table = reinterpret_cast<IMAGE_SECTION_HEADER *>(nt64 + 1);
         m_data_dir = nt64->OptionalHeader.DataDirectory;
     }
     else
     {
+        m_is_64bit = false;
         m_section_table = reinterpret_cast<IMAGE_SECTION_HEADER *>(nt32 + 1);
         m_data_dir = nt32->OptionalHeader.DataDirectory;
     }
@@ -266,40 +269,40 @@ inline bool ExeImage::_do_map()
     return true;
 }
 
-inline bool ExeImage::is_64bit()
+inline bool ExeImage::is_64bit() const
 {
-    return get_nt64() != NULL;
+    return m_is_64bit;
 }
 
-inline IMAGE_DOS_HEADER *ExeImage::get_dos()
+inline IMAGE_DOS_HEADER *ExeImage::get_dos() const
 {
     if (m_dos && m_dos->e_magic == IMAGE_DOS_SIGNATURE && m_dos->e_lfanew != 0)
         return m_dos;
     return NULL;
 }
 
-inline IMAGE_NT_HEADERS32 *ExeImage::get_nt32()
+inline IMAGE_NT_HEADERS32 *ExeImage::get_nt32() const
 {
     if (m_file && m_file->SizeOfOptionalHeader == sizeof(IMAGE_OPTIONAL_HEADER32))
         return reinterpret_cast<IMAGE_NT_HEADERS32 *>(m_nt);
     return NULL;
 }
 
-inline IMAGE_NT_HEADERS64 *ExeImage::get_nt64()
+inline IMAGE_NT_HEADERS64 *ExeImage::get_nt64() const
 {
     if (m_file && m_file->SizeOfOptionalHeader == sizeof(IMAGE_OPTIONAL_HEADER64))
         return reinterpret_cast<IMAGE_NT_HEADERS64 *>(m_nt);
     return NULL;
 }
 
-inline IMAGE_NT_HEADERS *ExeImage::get_nt()
+inline IMAGE_NT_HEADERS *ExeImage::get_nt() const
 {
     if (m_file && m_file->SizeOfOptionalHeader == sizeof(IMAGE_OPTIONAL_HEADER))
         return m_nt;
     return NULL;
 }
 
-inline IMAGE_OPTIONAL_HEADER32 *ExeImage::get_optional32()
+inline IMAGE_OPTIONAL_HEADER32 *ExeImage::get_optional32() const
 {
     IMAGE_NT_HEADERS32 *nt32 = get_nt32();
     if (nt32)
@@ -307,21 +310,21 @@ inline IMAGE_OPTIONAL_HEADER32 *ExeImage::get_optional32()
     return NULL;
 }
 
-inline IMAGE_OPTIONAL_HEADER64 *ExeImage::get_optional64()
+inline IMAGE_OPTIONAL_HEADER64 *ExeImage::get_optional64() const
 {
     if (IMAGE_NT_HEADERS64 *nt64 = get_nt64())
         return &nt64->OptionalHeader;
     return NULL;
 }
 
-inline IMAGE_OPTIONAL_HEADER *ExeImage::get_optional()
+inline IMAGE_OPTIONAL_HEADER *ExeImage::get_optional() const
 {
     if (IMAGE_NT_HEADERS *nt = get_nt())
         return &nt->OptionalHeader;
     return NULL;
 }
 
-inline DWORD ExeImage::size_of_headers()
+inline DWORD ExeImage::size_of_headers() const
 {
     if (is_64bit())
         return get_optional64()->SizeOfHeaders;
@@ -329,7 +332,12 @@ inline DWORD ExeImage::size_of_headers()
         return get_optional32()->SizeOfHeaders;
 }
 
-inline DWORD ExeImage::size_of_image()
+inline DWORD ExeImage::size_of_file() const
+{
+    return DWORD(m_file_image.size());
+}
+
+inline DWORD ExeImage::size_of_image() const
 {
     if (is_64bit())
         return get_optional64()->SizeOfImage;
@@ -337,22 +345,22 @@ inline DWORD ExeImage::size_of_image()
         return get_optional32()->SizeOfImage;
 }
 
-inline bool ExeImage::is_loaded()
+inline bool ExeImage::is_loaded() const
 {
     return m_nt != NULL;
 }
 
-inline DWORD ExeImage::number_of_sections()
+inline DWORD ExeImage::number_of_sections() const
 {
     return m_file->NumberOfSections;
 }
 
-inline IMAGE_DATA_DIRECTORY *ExeImage::get_data_dir()
+inline IMAGE_DATA_DIRECTORY *ExeImage::get_data_dir() const
 {
     return (is_loaded() ? m_data_dir : NULL);
 }
 
-inline IMAGE_DATA_DIRECTORY *ExeImage::get_data_dir(DWORD dwIndex)
+inline IMAGE_DATA_DIRECTORY *ExeImage::get_data_dir(DWORD dwIndex) const
 {
     if (is_loaded() && m_data_dir)
     {
@@ -363,6 +371,18 @@ inline IMAGE_DATA_DIRECTORY *ExeImage::get_data_dir(DWORD dwIndex)
 }
 
 inline BYTE *ExeImage::get_data(DWORD dwIndex)
+{
+    if (IMAGE_DATA_DIRECTORY *dir = get_data_dir(dwIndex))
+    {
+        if (dir->VirtualAddress && dir->Size)
+        {
+            return map_image<BYTE>(dir->VirtualAddress);
+        }
+    }
+    return NULL;
+}
+
+inline const BYTE *ExeImage::get_data(DWORD dwIndex) const
 {
     if (IMAGE_DATA_DIRECTORY *dir = get_data_dir(dwIndex))
     {
@@ -388,8 +408,35 @@ inline BYTE *ExeImage::get_data(DWORD dwIndex, DWORD& dwSize)
     return NULL;
 }
 
+inline const BYTE *ExeImage::get_data(DWORD dwIndex, DWORD& dwSize) const
+{
+    if (IMAGE_DATA_DIRECTORY *dir = get_data_dir(dwIndex))
+    {
+        if (dir->VirtualAddress && dir->Size)
+        {
+            dwSize = dir->Size;
+            return map_image<BYTE>(dir->VirtualAddress);
+        }
+    }
+    dwSize = 0;
+    return NULL;
+}
+
 template <typename T_STRUCT>
 inline T_STRUCT *ExeImage::get_typed_data(DWORD dwIndex)
+{
+    if (IMAGE_DATA_DIRECTORY *dir = get_data_dir(dwIndex))
+    {
+        if (dir->VirtualAddress && dir->Size)
+        {
+            return map_image<T_STRUCT>(dir->VirtualAddress);
+        }
+    }
+    return NULL;
+}
+
+template <typename T_STRUCT>
+inline const T_STRUCT *ExeImage::get_typed_data(DWORD dwIndex) const
 {
     if (IMAGE_DATA_DIRECTORY *dir = get_data_dir(dwIndex))
     {
@@ -598,7 +645,7 @@ inline IMAGE_RESOURCE_DIRECTORY *ExeImage::get_resource()
     return get_typed_data<IMAGE_RESOURCE_DIRECTORY>(IMAGE_DIRECTORY_ENTRY_RESOURCE);
 }
 
-inline bool ExeImage::rva_in_entry(DWORD rva, DWORD index)
+inline bool ExeImage::rva_in_entry(DWORD rva, DWORD index) const
 {
     if (IMAGE_DATA_DIRECTORY *dir = get_data_dir(index))
     {
@@ -618,12 +665,30 @@ inline T_STRUCT *ExeImage::map_image(DWORD offset)
 }
 
 template <typename T_STRUCT>
+inline const T_STRUCT *ExeImage::map_image(DWORD offset) const
+{
+    if (m_loaded_image.size() < offset + sizeof(T_STRUCT))
+        return NULL;
+    const BYTE *pb = reinterpret_cast<const BYTE *>(&m_loaded_image[0]) + offset;
+    return reinterpret_cast<const T_STRUCT *>(pb);
+}
+
+template <typename T_STRUCT>
 inline T_STRUCT *ExeImage::map_file(DWORD offset)
 {
     if (m_file_image.size() < offset + sizeof(T_STRUCT))
         return NULL;
     BYTE *pb = reinterpret_cast<BYTE *>(&m_file_image[0]) + offset;
     return reinterpret_cast<T_STRUCT *>(pb);
+}
+
+template <typename T_STRUCT>
+inline const T_STRUCT *ExeImage::map_file(DWORD offset) const
+{
+    if (m_file_image.size() < offset + sizeof(T_STRUCT))
+        return NULL;
+    const BYTE *pb = reinterpret_cast<const BYTE *>(&m_file_image[0]) + offset;
+    return reinterpret_cast<const T_STRUCT *>(pb);
 }
 
 ////////////////////////////////////////////////////////////////////////////
