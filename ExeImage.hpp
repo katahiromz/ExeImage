@@ -158,20 +158,14 @@ protected:
 // inlines
 
 inline ExeImage::ExeImage() :
-    m_dos(NULL),
-    m_nt(NULL),
-    m_file(NULL),
-    m_section_table(NULL),
-    m_data_dir(NULL)
+    m_dos(NULL), m_nt(NULL), m_file(NULL),
+    m_section_table(NULL), m_data_dir(NULL)
 {
 }
 
 inline ExeImage::ExeImage(const char *filename) :
-    m_dos(NULL),
-    m_nt(NULL),
-    m_file(NULL),
-    m_section_table(NULL),
-    m_data_dir(NULL)
+    m_dos(NULL), m_nt(NULL), m_file(NULL),
+    m_section_table(NULL), m_data_dir(NULL)
 {
     load(filename);
 }
