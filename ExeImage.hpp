@@ -994,6 +994,7 @@ inline void ExeImage::dump_delay_load(std::stringstream& ss)
 
 inline void ExeImage::dump_all(std::stringstream& ss)
 {
+    ss << "Filename: " << m_filename << "\n";
     dump_dos(ss);
     dump_nt(ss);
     dump_section_table(ss);
