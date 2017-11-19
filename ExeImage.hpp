@@ -130,6 +130,7 @@ public:
     //
     // dumping
     //
+    void dump_all(std::stringstream& ss);
     void dump_dos(std::stringstream& ss);
     void dump_nt(std::stringstream& ss);
     void dump_optional(std::stringstream& ss);
@@ -896,6 +897,15 @@ inline void ExeImage::dump_delay_load(std::stringstream& ss)
         EXE_IMAGE_DUMP(ss, rvaUnloadIAT, entries[i]);
         EXE_IMAGE_DUMP(ss, dwTimeStamp, entries[i]);
     }
+}
+
+inline void ExeImage::dump_all(std::stringstream& ss)
+{
+    dump_dos(ss);
+    dump_nt(ss);
+    dump_import(ss);
+    dump_export(ss);
+    dump_delay_load(ss);
 }
 
 ////////////////////////////////////////////////////////////////////////////

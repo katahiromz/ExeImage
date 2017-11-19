@@ -61,9 +61,9 @@ add_executable(ExeImageDumpTest ExeImageDumpTest.cpp)
 
 # add test
 if (WIN32)
-    add_test(NAME Kernel32Test COMMAND ExeImageDumpTest "C:\Windows\system32\kernel32.dll")
-    add_test(NAME User32Test COMMAND ExeImageDumpTest "C:\Windows\system32\user32.dll")
-    add_test(NAME Gdi32Test COMMAND ExeImageDumpTest "C:\Windows\system32\gdi32.dll")
+    add_test(NAME Kernel32Test COMMAND ExeImageDumpTest "C:\\Windows\\system32\\kernel32.dll")
+    add_test(NAME User32Test COMMAND ExeImageDumpTest "C:\\Windows\\system32\\user32.dll")
+    add_test(NAME Gdi32Test COMMAND ExeImageDumpTest "C:\\Windows\\system32\\gdi32.dll")
 endif()
 
 # install the program

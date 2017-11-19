@@ -21,11 +21,7 @@ int main(int argc, char **argv)
     }
 
     std::stringstream ss;
-    image.dump_dos(ss);
-    image.dump_nt(ss);
-    image.dump_import(ss);
-    image.dump_export(ss);
-    image.dump_delay_load(ss);
+    image.dump_all(ss);
     puts(ss.str().c_str());
 
     return 0;
