@@ -517,8 +517,8 @@ ExeImage::_get_import_symbols64(const IMAGE_IMPORT_DESCRIPTOR *desc,
                                 std::vector<ImportSymbol>& symbols) const
 {
     const IMAGE_IMPORT_BY_NAME *pIBN;
-    const ULONGLONG *pIAT64;
-    const ULONGLONG *pINT64;
+    const ULONGLONG *pIAT64;    // import address table
+    const ULONGLONG *pINT64;    // import name table
 
     pIAT64 = reinterpret_cast<const ULONGLONG *>(static_cast<DWORD_PTR>(desc->FirstThunk));
     if (desc->OriginalFirstThunk)
