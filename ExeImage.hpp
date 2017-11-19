@@ -2,7 +2,7 @@
 ////////////////////////////////////////////////////////////////////////////
 
 #ifndef EXE_IMAGE_HPP
-#define EXE_IMAGE_HPP   6       // Version 6
+#define EXE_IMAGE_HPP   7       // Version 7
 
 #ifdef _WIN32
     #include <windows.h>        // Windows API
@@ -629,8 +629,7 @@ inline T_STRUCT *ExeImage::map_file(DWORD offset)
 ////////////////////////////////////////////////////////////////////////////
 // dumping
 
-#define EXE_IMAGE_DUMP(ss,name,parent) ss << #name ": " << parent.name << "\n"
-#define EXE_IMAGE_DUMP_PTR(ss,name,parent) ss << #name ": " << parent->name << "\n"
+#define EXE_IMAGE_DUMP(ss,name,parent) ss << #name ": " << parent->name << "\n"
 
 inline void ExeImage::dump_dos(std::stringstream& ss)
 {
@@ -642,23 +641,23 @@ inline void ExeImage::dump_dos(std::stringstream& ss)
         return;
     }
 
-    EXE_IMAGE_DUMP_PTR(ss, e_magic, m_dos);
-    EXE_IMAGE_DUMP_PTR(ss, e_cblp, m_dos);
-    EXE_IMAGE_DUMP_PTR(ss, e_cp, m_dos);
-    EXE_IMAGE_DUMP_PTR(ss, e_crlc, m_dos);
-    EXE_IMAGE_DUMP_PTR(ss, e_cparhdr, m_dos);
-    EXE_IMAGE_DUMP_PTR(ss, e_minalloc, m_dos);
-    EXE_IMAGE_DUMP_PTR(ss, e_maxalloc, m_dos);
-    EXE_IMAGE_DUMP_PTR(ss, e_ss, m_dos);
-    EXE_IMAGE_DUMP_PTR(ss, e_sp, m_dos);
-    EXE_IMAGE_DUMP_PTR(ss, e_csum, m_dos);
-    EXE_IMAGE_DUMP_PTR(ss, e_ip, m_dos);
-    EXE_IMAGE_DUMP_PTR(ss, e_cs, m_dos);
-    EXE_IMAGE_DUMP_PTR(ss, e_lfarlc, m_dos);
-    EXE_IMAGE_DUMP_PTR(ss, e_ovno, m_dos);
-    EXE_IMAGE_DUMP_PTR(ss, e_oemid, m_dos);
-    EXE_IMAGE_DUMP_PTR(ss, e_oeminfo, m_dos);
-    EXE_IMAGE_DUMP_PTR(ss, e_lfanew, m_dos);
+    EXE_IMAGE_DUMP(ss, e_magic, m_dos);
+    EXE_IMAGE_DUMP(ss, e_cblp, m_dos);
+    EXE_IMAGE_DUMP(ss, e_cp, m_dos);
+    EXE_IMAGE_DUMP(ss, e_crlc, m_dos);
+    EXE_IMAGE_DUMP(ss, e_cparhdr, m_dos);
+    EXE_IMAGE_DUMP(ss, e_minalloc, m_dos);
+    EXE_IMAGE_DUMP(ss, e_maxalloc, m_dos);
+    EXE_IMAGE_DUMP(ss, e_ss, m_dos);
+    EXE_IMAGE_DUMP(ss, e_sp, m_dos);
+    EXE_IMAGE_DUMP(ss, e_csum, m_dos);
+    EXE_IMAGE_DUMP(ss, e_ip, m_dos);
+    EXE_IMAGE_DUMP(ss, e_cs, m_dos);
+    EXE_IMAGE_DUMP(ss, e_lfarlc, m_dos);
+    EXE_IMAGE_DUMP(ss, e_ovno, m_dos);
+    EXE_IMAGE_DUMP(ss, e_oemid, m_dos);
+    EXE_IMAGE_DUMP(ss, e_oeminfo, m_dos);
+    EXE_IMAGE_DUMP(ss, e_lfanew, m_dos);
 }
 
 inline void ExeImage::dump_nt(std::stringstream& ss)
@@ -677,14 +676,14 @@ inline void ExeImage::dump_nt(std::stringstream& ss)
 
         IMAGE_NT_HEADERS64 *nt64 = get_nt64();
 
-        EXE_IMAGE_DUMP_PTR(ss, Signature, nt64);
-        EXE_IMAGE_DUMP_PTR(ss, Machine, m_file);
-        EXE_IMAGE_DUMP_PTR(ss, NumberOfSections, m_file);
-        EXE_IMAGE_DUMP_PTR(ss, TimeDateStamp, m_file);
-        EXE_IMAGE_DUMP_PTR(ss, PointerToSymbolTable, m_file);
-        EXE_IMAGE_DUMP_PTR(ss, NumberOfSymbols, m_file);
-        EXE_IMAGE_DUMP_PTR(ss, SizeOfOptionalHeader, m_file);
-        EXE_IMAGE_DUMP_PTR(ss, Characteristics, m_file);
+        EXE_IMAGE_DUMP(ss, Signature, nt64);
+        EXE_IMAGE_DUMP(ss, Machine, m_file);
+        EXE_IMAGE_DUMP(ss, NumberOfSections, m_file);
+        EXE_IMAGE_DUMP(ss, TimeDateStamp, m_file);
+        EXE_IMAGE_DUMP(ss, PointerToSymbolTable, m_file);
+        EXE_IMAGE_DUMP(ss, NumberOfSymbols, m_file);
+        EXE_IMAGE_DUMP(ss, SizeOfOptionalHeader, m_file);
+        EXE_IMAGE_DUMP(ss, Characteristics, m_file);
 
         dump_optional(ss);
     }
@@ -693,14 +692,14 @@ inline void ExeImage::dump_nt(std::stringstream& ss)
         ss << "NT Header is 32-bit.\n";
         IMAGE_NT_HEADERS32 *nt32 = get_nt32();
 
-        EXE_IMAGE_DUMP_PTR(ss, Signature, nt32);
-        EXE_IMAGE_DUMP_PTR(ss, Machine, m_file);
-        EXE_IMAGE_DUMP_PTR(ss, NumberOfSections, m_file);
-        EXE_IMAGE_DUMP_PTR(ss, TimeDateStamp, m_file);
-        EXE_IMAGE_DUMP_PTR(ss, PointerToSymbolTable, m_file);
-        EXE_IMAGE_DUMP_PTR(ss, NumberOfSymbols, m_file);
-        EXE_IMAGE_DUMP_PTR(ss, SizeOfOptionalHeader, m_file);
-        EXE_IMAGE_DUMP_PTR(ss, Characteristics, m_file);
+        EXE_IMAGE_DUMP(ss, Signature, nt32);
+        EXE_IMAGE_DUMP(ss, Machine, m_file);
+        EXE_IMAGE_DUMP(ss, NumberOfSections, m_file);
+        EXE_IMAGE_DUMP(ss, TimeDateStamp, m_file);
+        EXE_IMAGE_DUMP(ss, PointerToSymbolTable, m_file);
+        EXE_IMAGE_DUMP(ss, NumberOfSymbols, m_file);
+        EXE_IMAGE_DUMP(ss, SizeOfOptionalHeader, m_file);
+        EXE_IMAGE_DUMP(ss, Characteristics, m_file);
 
         dump_optional(ss);
     }
@@ -720,35 +719,35 @@ inline void ExeImage::dump_optional(std::stringstream& ss)
         }
         ss << "Optional Header is 64-bit.\n";
 
-        EXE_IMAGE_DUMP_PTR(ss, Magic, optional64);
+        EXE_IMAGE_DUMP(ss, Magic, optional64);
         ss << "MajorLinkerVersion: " << (UINT)optional64->MajorLinkerVersion << "\n";
         ss << "MinorLinkerVersion: " << (UINT)optional64->MinorLinkerVersion << "\n";
-        EXE_IMAGE_DUMP_PTR(ss, SizeOfCode, optional64);
-        EXE_IMAGE_DUMP_PTR(ss, SizeOfInitializedData, optional64);
-        EXE_IMAGE_DUMP_PTR(ss, SizeOfUninitializedData, optional64);
-        EXE_IMAGE_DUMP_PTR(ss, AddressOfEntryPoint, optional64);
-        EXE_IMAGE_DUMP_PTR(ss, BaseOfCode, optional64);
-        EXE_IMAGE_DUMP_PTR(ss, ImageBase, optional64);
-        EXE_IMAGE_DUMP_PTR(ss, SectionAlignment, optional64);
-        EXE_IMAGE_DUMP_PTR(ss, FileAlignment, optional64);
-        EXE_IMAGE_DUMP_PTR(ss, MajorOperatingSystemVersion, optional64);
-        EXE_IMAGE_DUMP_PTR(ss, MinorOperatingSystemVersion, optional64);
-        EXE_IMAGE_DUMP_PTR(ss, MajorImageVersion, optional64);
-        EXE_IMAGE_DUMP_PTR(ss, MinorImageVersion, optional64);
-        EXE_IMAGE_DUMP_PTR(ss, MajorSubsystemVersion, optional64);
-        EXE_IMAGE_DUMP_PTR(ss, MinorSubsystemVersion, optional64);
-        EXE_IMAGE_DUMP_PTR(ss, Win32VersionValue, optional64);
-        EXE_IMAGE_DUMP_PTR(ss, SizeOfImage, optional64);
-        EXE_IMAGE_DUMP_PTR(ss, SizeOfHeaders, optional64);
-        EXE_IMAGE_DUMP_PTR(ss, CheckSum, optional64);
-        EXE_IMAGE_DUMP_PTR(ss, Subsystem, optional64);
-        EXE_IMAGE_DUMP_PTR(ss, DllCharacteristics, optional64);
-        EXE_IMAGE_DUMP_PTR(ss, SizeOfStackReserve, optional64);
-        EXE_IMAGE_DUMP_PTR(ss, SizeOfStackCommit, optional64);
-        EXE_IMAGE_DUMP_PTR(ss, SizeOfHeapReserve, optional64);
-        EXE_IMAGE_DUMP_PTR(ss, SizeOfHeapCommit, optional64);
-        EXE_IMAGE_DUMP_PTR(ss, LoaderFlags, optional64);
-        EXE_IMAGE_DUMP_PTR(ss, NumberOfRvaAndSizes, optional64);
+        EXE_IMAGE_DUMP(ss, SizeOfCode, optional64);
+        EXE_IMAGE_DUMP(ss, SizeOfInitializedData, optional64);
+        EXE_IMAGE_DUMP(ss, SizeOfUninitializedData, optional64);
+        EXE_IMAGE_DUMP(ss, AddressOfEntryPoint, optional64);
+        EXE_IMAGE_DUMP(ss, BaseOfCode, optional64);
+        EXE_IMAGE_DUMP(ss, ImageBase, optional64);
+        EXE_IMAGE_DUMP(ss, SectionAlignment, optional64);
+        EXE_IMAGE_DUMP(ss, FileAlignment, optional64);
+        EXE_IMAGE_DUMP(ss, MajorOperatingSystemVersion, optional64);
+        EXE_IMAGE_DUMP(ss, MinorOperatingSystemVersion, optional64);
+        EXE_IMAGE_DUMP(ss, MajorImageVersion, optional64);
+        EXE_IMAGE_DUMP(ss, MinorImageVersion, optional64);
+        EXE_IMAGE_DUMP(ss, MajorSubsystemVersion, optional64);
+        EXE_IMAGE_DUMP(ss, MinorSubsystemVersion, optional64);
+        EXE_IMAGE_DUMP(ss, Win32VersionValue, optional64);
+        EXE_IMAGE_DUMP(ss, SizeOfImage, optional64);
+        EXE_IMAGE_DUMP(ss, SizeOfHeaders, optional64);
+        EXE_IMAGE_DUMP(ss, CheckSum, optional64);
+        EXE_IMAGE_DUMP(ss, Subsystem, optional64);
+        EXE_IMAGE_DUMP(ss, DllCharacteristics, optional64);
+        EXE_IMAGE_DUMP(ss, SizeOfStackReserve, optional64);
+        EXE_IMAGE_DUMP(ss, SizeOfStackCommit, optional64);
+        EXE_IMAGE_DUMP(ss, SizeOfHeapReserve, optional64);
+        EXE_IMAGE_DUMP(ss, SizeOfHeapCommit, optional64);
+        EXE_IMAGE_DUMP(ss, LoaderFlags, optional64);
+        EXE_IMAGE_DUMP(ss, NumberOfRvaAndSizes, optional64);
     }
     else
     {
@@ -760,36 +759,36 @@ inline void ExeImage::dump_optional(std::stringstream& ss)
         }
         ss << "Optional Header is 32-bit.\n";
 
-        EXE_IMAGE_DUMP_PTR(ss, Magic, optional32);
+        EXE_IMAGE_DUMP(ss, Magic, optional32);
         ss << "MajorLinkerVersion: " << (UINT)optional32->MajorLinkerVersion << "\n";
         ss << "MinorLinkerVersion: " << (UINT)optional32->MinorLinkerVersion << "\n";
-        EXE_IMAGE_DUMP_PTR(ss, SizeOfCode, optional32);
-        EXE_IMAGE_DUMP_PTR(ss, SizeOfInitializedData, optional32);
-        EXE_IMAGE_DUMP_PTR(ss, SizeOfUninitializedData, optional32);
-        EXE_IMAGE_DUMP_PTR(ss, AddressOfEntryPoint, optional32);
-        EXE_IMAGE_DUMP_PTR(ss, BaseOfCode, optional32);
-        EXE_IMAGE_DUMP_PTR(ss, BaseOfData, optional32);
-        EXE_IMAGE_DUMP_PTR(ss, ImageBase, optional32);
-        EXE_IMAGE_DUMP_PTR(ss, SectionAlignment, optional32);
-        EXE_IMAGE_DUMP_PTR(ss, FileAlignment, optional32);
-        EXE_IMAGE_DUMP_PTR(ss, MajorOperatingSystemVersion, optional32);
-        EXE_IMAGE_DUMP_PTR(ss, MinorOperatingSystemVersion, optional32);
-        EXE_IMAGE_DUMP_PTR(ss, MajorImageVersion, optional32);
-        EXE_IMAGE_DUMP_PTR(ss, MinorImageVersion, optional32);
-        EXE_IMAGE_DUMP_PTR(ss, MajorSubsystemVersion, optional32);
-        EXE_IMAGE_DUMP_PTR(ss, MinorSubsystemVersion, optional32);
-        EXE_IMAGE_DUMP_PTR(ss, Win32VersionValue, optional32);
-        EXE_IMAGE_DUMP_PTR(ss, SizeOfImage, optional32);
-        EXE_IMAGE_DUMP_PTR(ss, SizeOfHeaders, optional32);
-        EXE_IMAGE_DUMP_PTR(ss, CheckSum, optional32);
-        EXE_IMAGE_DUMP_PTR(ss, Subsystem, optional32);
-        EXE_IMAGE_DUMP_PTR(ss, DllCharacteristics, optional32);
-        EXE_IMAGE_DUMP_PTR(ss, SizeOfStackReserve, optional32);
-        EXE_IMAGE_DUMP_PTR(ss, SizeOfStackCommit, optional32);
-        EXE_IMAGE_DUMP_PTR(ss, SizeOfHeapReserve, optional32);
-        EXE_IMAGE_DUMP_PTR(ss, SizeOfHeapCommit, optional32);
-        EXE_IMAGE_DUMP_PTR(ss, LoaderFlags, optional32);
-        EXE_IMAGE_DUMP_PTR(ss, NumberOfRvaAndSizes, optional32);
+        EXE_IMAGE_DUMP(ss, SizeOfCode, optional32);
+        EXE_IMAGE_DUMP(ss, SizeOfInitializedData, optional32);
+        EXE_IMAGE_DUMP(ss, SizeOfUninitializedData, optional32);
+        EXE_IMAGE_DUMP(ss, AddressOfEntryPoint, optional32);
+        EXE_IMAGE_DUMP(ss, BaseOfCode, optional32);
+        EXE_IMAGE_DUMP(ss, BaseOfData, optional32);
+        EXE_IMAGE_DUMP(ss, ImageBase, optional32);
+        EXE_IMAGE_DUMP(ss, SectionAlignment, optional32);
+        EXE_IMAGE_DUMP(ss, FileAlignment, optional32);
+        EXE_IMAGE_DUMP(ss, MajorOperatingSystemVersion, optional32);
+        EXE_IMAGE_DUMP(ss, MinorOperatingSystemVersion, optional32);
+        EXE_IMAGE_DUMP(ss, MajorImageVersion, optional32);
+        EXE_IMAGE_DUMP(ss, MinorImageVersion, optional32);
+        EXE_IMAGE_DUMP(ss, MajorSubsystemVersion, optional32);
+        EXE_IMAGE_DUMP(ss, MinorSubsystemVersion, optional32);
+        EXE_IMAGE_DUMP(ss, Win32VersionValue, optional32);
+        EXE_IMAGE_DUMP(ss, SizeOfImage, optional32);
+        EXE_IMAGE_DUMP(ss, SizeOfHeaders, optional32);
+        EXE_IMAGE_DUMP(ss, CheckSum, optional32);
+        EXE_IMAGE_DUMP(ss, Subsystem, optional32);
+        EXE_IMAGE_DUMP(ss, DllCharacteristics, optional32);
+        EXE_IMAGE_DUMP(ss, SizeOfStackReserve, optional32);
+        EXE_IMAGE_DUMP(ss, SizeOfStackCommit, optional32);
+        EXE_IMAGE_DUMP(ss, SizeOfHeapReserve, optional32);
+        EXE_IMAGE_DUMP(ss, SizeOfHeapCommit, optional32);
+        EXE_IMAGE_DUMP(ss, LoaderFlags, optional32);
+        EXE_IMAGE_DUMP(ss, NumberOfRvaAndSizes, optional32);
     }
 
     dump_data_dir(ss);
@@ -883,14 +882,15 @@ inline void ExeImage::dump_delay_load(std::stringstream& ss)
     for (size_t i = 0; i < entries.size(); ++i)
     {
         ss << "Entry #" << i << "\n";
-        EXE_IMAGE_DUMP(ss, grAttrs, entries[i]);
-        EXE_IMAGE_DUMP(ss, rvaDLLName, entries[i]);
-        EXE_IMAGE_DUMP(ss, rvaHmod, entries[i]);
-        EXE_IMAGE_DUMP(ss, rvaIAT, entries[i]);
-        EXE_IMAGE_DUMP(ss, rvaINT, entries[i]);
-        EXE_IMAGE_DUMP(ss, rvaBoundIAT, entries[i]);
-        EXE_IMAGE_DUMP(ss, rvaUnloadIAT, entries[i]);
-        EXE_IMAGE_DUMP(ss, dwTimeStamp, entries[i]);
+        ImgDelayDescr *entry = &entries[i];
+        EXE_IMAGE_DUMP(ss, grAttrs, entry);
+        EXE_IMAGE_DUMP(ss, rvaDLLName, entry);
+        EXE_IMAGE_DUMP(ss, rvaHmod, entry);
+        EXE_IMAGE_DUMP(ss, rvaIAT, entry);
+        EXE_IMAGE_DUMP(ss, rvaINT, entry);
+        EXE_IMAGE_DUMP(ss, rvaBoundIAT, entry);
+        EXE_IMAGE_DUMP(ss, rvaUnloadIAT, entry);
+        EXE_IMAGE_DUMP(ss, dwTimeStamp, entry);
     }
 }
 
@@ -906,7 +906,6 @@ inline void ExeImage::dump_all(std::stringstream& ss)
 ////////////////////////////////////////////////////////////////////////////
 
 #undef EXE_IMAGE_DUMP
-#undef EXE_IMAGE_DUMP_PTR
 
 } // namespace codereverse
 
