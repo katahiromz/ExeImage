@@ -2,7 +2,7 @@
 ////////////////////////////////////////////////////////////////////////////
 
 #ifndef EXE_IMAGE_HPP
-#define EXE_IMAGE_HPP   5       // Version 5
+#define EXE_IMAGE_HPP   6       // Version 6
 
 #ifdef _WIN32
     #include <windows.h>        // Windows API
@@ -96,7 +96,7 @@ public:
     template <typename T_STRUCT>
     T_STRUCT *get_typed_data(DWORD dwIndex);
 
-    bool rva_in_entry(DWORD rva, DWORD index) const;
+    bool rva_in_entry(DWORD rva, DWORD index);
     template <typename T_STRUCT>
     T_STRUCT *map_image(DWORD offset);
     template <typename T_STRUCT>
@@ -598,12 +598,14 @@ inline IMAGE_RESOURCE_DIRECTORY *ExeImage::get_resource()
     return get_typed_data<IMAGE_RESOURCE_DIRECTORY>(IMAGE_DIRECTORY_ENTRY_RESOURCE);
 }
 
-inline bool ExeImage::rva_in_entry(DWORD rva, DWORD index) const
+inline bool ExeImage::rva_in_entry(DWORD rva, DWORD index)
 {
-    assert(m_data_dir);
-    return (index < IMAGE_NUMBEROF_DIRECTORY_ENTRIES &&
-            m_data_dir[index].VirtualAddress <= rva &&
-            rva < m_data_dir[index].VirtualAddress + m_data_dir[index].Size);
+    if (IMAGE_DATA_DIRECTORY *dir = get_data_dir(index))
+    {
+        return (dir->VirtualAddress <= rva &&
+                rva < dir->VirtualAddress + dir->Size);
+    }
+    return false;
 }
 
 template <typename T_STRUCT>
