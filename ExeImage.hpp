@@ -2,7 +2,7 @@
 ////////////////////////////////////////////////////////////////////////////
 
 #ifndef EXE_IMAGE_HPP
-#define EXE_IMAGE_HPP   1   // Version 1
+#define EXE_IMAGE_HPP   2   // Version 2
 
 #ifdef _WIN32
     #include <windows.h>
@@ -195,7 +195,7 @@ inline bool ExeImage::load(const char *filename)
     }
 
     if (ok)
-        _do_map();
+        ok = _do_map();
 
     return ok;
 }
@@ -233,7 +233,7 @@ inline bool ExeImage::load(const char *filename)
         }
 
         if (ok)
-            _do_map();
+            ok = _do_map();
 
         return ok;
     }
