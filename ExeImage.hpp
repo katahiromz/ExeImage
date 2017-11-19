@@ -2,7 +2,7 @@
 ////////////////////////////////////////////////////////////////////////////
 
 #ifndef EXE_IMAGE_HPP
-#define EXE_IMAGE_HPP   13      // Version 13
+#define EXE_IMAGE_HPP   14      // Version 14
 
 #ifdef _WIN32
     #include <windows.h>        // Windows API
@@ -167,7 +167,7 @@ protected:
         return this;
     }
     template <typename T_TYPE>
-    T_TYPE *drop_const(const T_TYPE *obj)
+    inline T_TYPE *drop_const(const T_TYPE *obj)
     {
         return const_cast<T_TYPE *>(obj);
     }
