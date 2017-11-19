@@ -478,8 +478,8 @@ ExeImage::_get_import_symbols32(const IMAGE_IMPORT_DESCRIPTOR *desc,
                                 std::vector<ImportSymbol>& symbols) const
 {
     const IMAGE_IMPORT_BY_NAME *pIBN;
-    const DWORD *pIAT;      // import address table
-    const DWORD *pINT;      // import name table
+    const DWORD *pIAT;      // import address table (IAT)
+    const DWORD *pINT;      // import name table (INT)
 
     pIAT = reinterpret_cast<const DWORD *>(static_cast<DWORD_PTR>(desc->FirstThunk));
     if (desc->OriginalFirstThunk)
@@ -517,8 +517,8 @@ ExeImage::_get_import_symbols64(const IMAGE_IMPORT_DESCRIPTOR *desc,
                                 std::vector<ImportSymbol>& symbols) const
 {
     const IMAGE_IMPORT_BY_NAME *pIBN;
-    const ULONGLONG *pIAT64;    // import address table
-    const ULONGLONG *pINT64;    // import name table
+    const ULONGLONG *pIAT64;    // import address table (IAT)
+    const ULONGLONG *pINT64;    // import name table (INT)
 
     pIAT64 = reinterpret_cast<const ULONGLONG *>(static_cast<DWORD_PTR>(desc->FirstThunk));
     if (desc->OriginalFirstThunk)
