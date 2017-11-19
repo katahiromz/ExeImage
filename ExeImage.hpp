@@ -821,16 +821,12 @@ inline void ExeImage::dump_import(std::stringstream& ss)
 {
     ss << "\n### Import ###\n";
 
-    IMAGE_IMPORT_DESCRIPTOR *import = get_import();
-    if (!import)
+    std::vector<char *> names;
+    if (!get_import_dll_names(names))
     {
         ss << "No import table.\n";
         return;
     }
-
-    std::vector<char *> names;
-    if (!get_import_dll_names(names))
-        return;
 
     for (size_t i = 0; i < names.size(); ++i)
     {
