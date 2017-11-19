@@ -98,6 +98,8 @@ public:
     IMAGE_DATA_DIRECTORY *get_data_dir(DWORD dwIndex);
     BYTE *get_data(DWORD dwIndex);
     BYTE *get_data(DWORD dwIndex, DWORD& dwSize);
+    template <typename T_STRUCT>
+    T_STRUCT *get_typed_data(DWORD dwIndex);
 
     bool rva_in_entry(DWORD rva, DWORD index) const;
     template <typename T_STRUCT>
@@ -197,8 +199,7 @@ inline bool ExeImage::load(const char *filename)
         return false;
 
     bool ok = false;
-    FILE *fp = fopen(filename, "rb");
-    if (fp)
+    if (FILE *fp = fopen(filename, "rb"))
     {
         m_file_image.resize(st.st_size);
         if (fread(&m_file_image[0], st.st_size, 1, fp))
@@ -235,8 +236,7 @@ inline bool ExeImage::load(const char *filename)
             return false;
 
         bool ok = false;
-        FILE *fp = _wfopen(filename, L"rb");
-        if (fp)
+        if (FILE *fp = _wfopen(filename, L"rb"))
         {
             m_file_image.resize(st.st_size);
             if (fread(&m_file_image[0], st.st_size, 1, fp))
@@ -277,8 +277,7 @@ inline bool ExeImage::_do_map()
         return false;
     }
 
-    IMAGE_NT_HEADERS64 *nt64 = get_nt64();
-    if (nt64)
+    if (IMAGE_NT_HEADERS64 *nt64 = get_nt64())
     {
         m_section_table = reinterpret_cast<IMAGE_SECTION_HEADER *>(nt64 + 1);
         m_data_dir = nt64->OptionalHeader.DataDirectory;
@@ -352,16 +351,14 @@ inline IMAGE_OPTIONAL_HEADER32 *ExeImage::get_optional32()
 
 inline IMAGE_OPTIONAL_HEADER64 *ExeImage::get_optional64()
 {
-    IMAGE_NT_HEADERS64 *nt64 = get_nt64();
-    if (nt64)
+    if (IMAGE_NT_HEADERS64 *nt64 = get_nt64())
         return &nt64->OptionalHeader;
     return NULL;
 }
 
 inline IMAGE_OPTIONAL_HEADER *ExeImage::get_optional()
 {
-    IMAGE_NT_HEADERS *nt = get_nt();
-    if (nt)
+    if (IMAGE_NT_HEADERS *nt = get_nt())
         return &nt->OptionalHeader;
     return NULL;
 }
@@ -433,10 +430,22 @@ inline BYTE *ExeImage::get_data(DWORD dwIndex, DWORD& dwSize)
     return NULL;
 }
 
+template <typename T_STRUCT>
+inline T_STRUCT *ExeImage::get_typed_data(DWORD dwIndex)
+{
+    if (IMAGE_DATA_DIRECTORY *dir = get_data_dir(dwIndex))
+    {
+        if (dir->VirtualAddress && dir->Size)
+        {
+            return map_image<T_STRUCT>(dir->VirtualAddress);
+        }
+    }
+    return NULL;
+}
+
 inline IMAGE_IMPORT_DESCRIPTOR *ExeImage::get_import()
 {
-    BYTE *pb = get_data(IMAGE_DIRECTORY_ENTRY_IMPORT);
-    return reinterpret_cast<IMAGE_IMPORT_DESCRIPTOR *>(pb);
+    return get_typed_data<IMAGE_IMPORT_DESCRIPTOR>(IMAGE_DIRECTORY_ENTRY_IMPORT);
 }
 
 inline bool ExeImage::get_import_dll_names(std::vector<char *>& names)
@@ -545,8 +554,7 @@ ExeImage::_get_import_symbols64(IMAGE_IMPORT_DESCRIPTOR *desc, std::vector<Impor
 
 inline IMAGE_EXPORT_DIRECTORY *ExeImage::get_export()
 {
-    BYTE *pb = get_data(IMAGE_DIRECTORY_ENTRY_EXPORT);
-    return reinterpret_cast<IMAGE_EXPORT_DIRECTORY *>(pb);
+    return get_typed_data<IMAGE_EXPORT_DIRECTORY>(IMAGE_DIRECTORY_ENTRY_EXPORT);
 }
 
 inline bool ExeImage::get_export_symbols(std::vector<ExportSymbol>& symbols)
@@ -611,11 +619,7 @@ inline bool ExeImage::get_export_symbols(std::vector<ExportSymbol>& symbols)
 
 inline ImgDelayDescr *ExeImage::get_delay_load()
 {
-    IMAGE_DATA_DIRECTORY *dir = get_data_dir(IMAGE_DIRECTORY_ENTRY_DELAY_IMPORT);
-    if (!dir)
-        return NULL;
-
-    return map_image<ImgDelayDescr>(dir->VirtualAddress);
+    return get_typed_data<ImgDelayDescr>(IMAGE_DIRECTORY_ENTRY_DELAY_IMPORT);
 }
 
 inline bool ExeImage::get_delay_load_entries(std::vector<ImgDelayDescr>& entries)
@@ -633,11 +637,7 @@ inline bool ExeImage::get_delay_load_entries(std::vector<ImgDelayDescr>& entries
 
 inline IMAGE_RESOURCE_DIRECTORY *ExeImage::get_resource()
 {
-    IMAGE_DATA_DIRECTORY *dir = get_data_dir(IMAGE_DIRECTORY_ENTRY_RESOURCE);
-    if (!dir)
-        return NULL;
-
-    return map_image<IMAGE_RESOURCE_DIRECTORY>(dir->VirtualAddress);
+    return get_typed_data<IMAGE_RESOURCE_DIRECTORY>(IMAGE_DIRECTORY_ENTRY_RESOURCE);
 }
 
 inline bool ExeImage::rva_in_entry(DWORD rva, DWORD index) const
@@ -848,9 +848,8 @@ inline void ExeImage::dump_data_dir(std::stringstream& ss)
 
     for (DWORD dwIndex = 0; dwIndex < IMAGE_NUMBEROF_DIRECTORY_ENTRIES; ++dwIndex)
     {
-        ss << "IMAGE_DATA_DIRECTORY #" << dwIndex << "\n";
-        EXE_IMAGE_DUMP_PTR(ss, VirtualAddress, dir);
-        EXE_IMAGE_DUMP_PTR(ss, Size, dir);
+        ss << "#" << dwIndex << ": VirtualAddress " << dir->VirtualAddress <<
+              ", Size " << dir->Size << ".\n";
         ++dir;
     }
 }
