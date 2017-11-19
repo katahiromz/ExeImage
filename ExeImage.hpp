@@ -2,7 +2,7 @@
 ////////////////////////////////////////////////////////////////////////////
 
 #ifndef EXE_IMAGE_HPP
-#define EXE_IMAGE_HPP   3   // Version 3
+#define EXE_IMAGE_HPP   4   // Version 4
 
 #ifdef _WIN32
     #include <windows.h>
@@ -68,11 +68,6 @@ public:
 
     bool load(const char *filename);
     void unload();
-
-#ifdef _WIN32
-    ExeImage(const WCHAR *filename);
-    bool load(const WCHAR *filename);
-#endif
 
     bool is_loaded();
     bool is_64bit();
@@ -143,6 +138,7 @@ public:
     void dump_delay_load(std::stringstream& ss);
 
 protected:
+    std::string       m_filename;
     std::vector<BYTE> m_file_image;
     std::vector<BYTE> m_loaded_image;
     IMAGE_DOS_HEADER *m_dos;
@@ -210,48 +206,15 @@ inline bool ExeImage::load(const char *filename)
     }
 
     if (ok)
+    {
         ok = _do_map();
-
+    }
+    if (ok)
+    {
+        m_filename = filename;
+    }
     return ok;
 }
-
-#ifdef _WIN32
-    inline ExeImage::ExeImage(const WCHAR *filename) :
-        m_dos(NULL),
-        m_nt(NULL),
-        m_file(NULL),
-        m_section_table(NULL),
-        m_data_dir(NULL)
-    {
-        load(filename);
-    }
-
-    inline bool ExeImage::load(const WCHAR *filename)
-    {
-        unload();
-
-        using namespace std;
-        struct _stat st;
-        if (_wstat(filename, &st) != 0)
-            return false;
-
-        bool ok = false;
-        if (FILE *fp = _wfopen(filename, L"rb"))
-        {
-            m_file_image.resize(st.st_size);
-            if (fread(&m_file_image[0], st.st_size, 1, fp))
-            {
-                ok = true;
-            }
-            fclose(fp);
-        }
-
-        if (ok)
-            ok = _do_map();
-
-        return ok;
-    }
-#endif
 
 inline ExeImage::~ExeImage()
 {
