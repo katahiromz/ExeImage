@@ -349,35 +349,6 @@ inline const IMAGE_OPTIONAL_HEADER *ExeImage::get_optional() const
     return NULL;
 }
 
-inline IMAGE_DOS_HEADER *ExeImage::get_dos()
-{
-    return drop_const(const_this()->get_dos());
-}
-inline IMAGE_NT_HEADERS32 *ExeImage::get_nt32()
-{
-    return drop_const(const_this()->get_nt32());
-}
-inline IMAGE_NT_HEADERS64 *ExeImage::get_nt64()
-{
-    return drop_const(const_this()->get_nt64());
-}
-inline IMAGE_NT_HEADERS *ExeImage::get_nt()
-{
-    return drop_const(const_this()->get_nt());
-}
-inline IMAGE_OPTIONAL_HEADER32 *ExeImage::get_optional32()
-{
-    return drop_const(const_this()->get_optional32());
-}
-inline IMAGE_OPTIONAL_HEADER64 *ExeImage::get_optional64()
-{
-    return drop_const(const_this()->get_optional64());
-}
-inline IMAGE_OPTIONAL_HEADER *ExeImage::get_optional()
-{
-    return drop_const(const_this()->get_optional());
-}
-
 inline DWORD ExeImage::size_of_headers() const
 {
     if (is_64bit())
@@ -424,15 +395,6 @@ inline const IMAGE_DATA_DIRECTORY *ExeImage::get_data_dir(DWORD dwIndex) const
     return NULL;
 }
 
-inline IMAGE_DATA_DIRECTORY *ExeImage::get_data_dir()
-{
-    return drop_const(const_this()->get_data_dir());
-}
-inline IMAGE_DATA_DIRECTORY *ExeImage::get_data_dir(DWORD dwIndex)
-{
-    return drop_const(const_this()->get_data_dir(dwIndex));
-}
-
 inline const BYTE *ExeImage::get_data(DWORD dwIndex) const
 {
     if (const IMAGE_DATA_DIRECTORY *dir = get_data_dir(dwIndex))
@@ -443,11 +405,6 @@ inline const BYTE *ExeImage::get_data(DWORD dwIndex) const
         }
     }
     return NULL;
-}
-
-inline BYTE *ExeImage::get_data(DWORD dwIndex)
-{
-    return drop_const(const_this()->get_data(dwIndex));
 }
 
 inline const BYTE *ExeImage::get_data(DWORD dwIndex, DWORD& dwSize) const
@@ -464,12 +421,6 @@ inline const BYTE *ExeImage::get_data(DWORD dwIndex, DWORD& dwSize) const
     return NULL;
 }
 
-
-inline BYTE *ExeImage::get_data(DWORD dwIndex, DWORD& dwSize)
-{
-    return drop_const(const_this()->get_data(dwIndex, dwSize));
-}
-
 template <typename T_STRUCT>
 inline const T_STRUCT *ExeImage::get_typed_data(DWORD dwIndex) const
 {
@@ -481,12 +432,6 @@ inline const T_STRUCT *ExeImage::get_typed_data(DWORD dwIndex) const
         }
     }
     return NULL;
-}
-
-template <typename T_STRUCT>
-inline T_STRUCT *ExeImage::get_typed_data(DWORD dwIndex)
-{
-    return drop_const(const_this()->get_typed_data<T_STRUCT>(dwIndex));
 }
 
 inline IMAGE_IMPORT_DESCRIPTOR *ExeImage::get_import()
@@ -727,12 +672,6 @@ inline const T_STRUCT *ExeImage::map_image(DWORD offset) const
 }
 
 template <typename T_STRUCT>
-inline T_STRUCT *ExeImage::map_image(DWORD offset)
-{
-    return drop_const(const_this()->map_image<T_STRUCT>(offset));
-}
-
-template <typename T_STRUCT>
 inline const T_STRUCT *ExeImage::map_file(DWORD offset) const
 {
     if (m_file_image.size() < offset + sizeof(T_STRUCT))
@@ -741,6 +680,60 @@ inline const T_STRUCT *ExeImage::map_file(DWORD offset) const
     return reinterpret_cast<const T_STRUCT *>(pb);
 }
 
+inline IMAGE_DOS_HEADER *ExeImage::get_dos()
+{
+    return drop_const(const_this()->get_dos());
+}
+inline IMAGE_NT_HEADERS32 *ExeImage::get_nt32()
+{
+    return drop_const(const_this()->get_nt32());
+}
+inline IMAGE_NT_HEADERS64 *ExeImage::get_nt64()
+{
+    return drop_const(const_this()->get_nt64());
+}
+inline IMAGE_NT_HEADERS *ExeImage::get_nt()
+{
+    return drop_const(const_this()->get_nt());
+}
+inline IMAGE_OPTIONAL_HEADER32 *ExeImage::get_optional32()
+{
+    return drop_const(const_this()->get_optional32());
+}
+inline IMAGE_OPTIONAL_HEADER64 *ExeImage::get_optional64()
+{
+    return drop_const(const_this()->get_optional64());
+}
+inline IMAGE_OPTIONAL_HEADER *ExeImage::get_optional()
+{
+    return drop_const(const_this()->get_optional());
+}
+inline IMAGE_DATA_DIRECTORY *ExeImage::get_data_dir()
+{
+    return drop_const(const_this()->get_data_dir());
+}
+inline IMAGE_DATA_DIRECTORY *ExeImage::get_data_dir(DWORD dwIndex)
+{
+    return drop_const(const_this()->get_data_dir(dwIndex));
+}
+inline BYTE *ExeImage::get_data(DWORD dwIndex)
+{
+    return drop_const(const_this()->get_data(dwIndex));
+}
+inline BYTE *ExeImage::get_data(DWORD dwIndex, DWORD& dwSize)
+{
+    return drop_const(const_this()->get_data(dwIndex, dwSize));
+}
+template <typename T_STRUCT>
+inline T_STRUCT *ExeImage::get_typed_data(DWORD dwIndex)
+{
+    return drop_const(const_this()->get_typed_data<T_STRUCT>(dwIndex));
+}
+template <typename T_STRUCT>
+inline T_STRUCT *ExeImage::map_image(DWORD offset)
+{
+    return drop_const(const_this()->map_image<T_STRUCT>(offset));
+}
 template <typename T_STRUCT>
 inline T_STRUCT *ExeImage::map_file(DWORD offset)
 {
