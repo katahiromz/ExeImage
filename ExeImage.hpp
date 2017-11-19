@@ -5,22 +5,21 @@
 #define EXE_IMAGE_HPP   5       // Version 5
 
 #ifdef _WIN32
-    #include <windows.h>
-    #include <delayimp.h>       // ImgDelayDescr
+    #include <windows.h>        // Windows API
+    #include <delayimp.h>       // for ImgDelayDescr
 #else
-    #include "wonnt.h"
-    #include "pdelayload.h"
+    #include "wonnt.h"          // Wonders API
+    #include "pdelayload.h"     // for ImgDelayDescr
 #endif
 
-#include <vector>
-#include <sstream>
+#include <vector>               // for std::vector
+#include <sstream>              // for std::stringstream
 
-#include <cstdlib>
-#include <cstdio>
-#include <cstring>
-#include <cassert>
-#include <sys/types.h>
-#include <sys/stat.h>
+#include <cstdio>               // for fopen, fclose, FILE, ...
+#include <cstring>              // for memcpy
+#include <cassert>              // for assert macro
+#include <sys/types.h>          // for stat
+#include <sys/stat.h>           // for stat
 
 namespace codereverse
 {

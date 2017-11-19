@@ -1,4 +1,4 @@
-/* wonnt.h */
+/* wonnt.h --- Wonders API by katahiromz */
 /**************************************************************************/
 
 #ifndef WONNT_H
@@ -233,6 +233,36 @@ typedef struct {
     WORD Hint;
     BYTE Name[1];
 } IMAGE_IMPORT_BY_NAME;
+
+#define IMAGE_RESOURCE_NAME_IS_STRING        0x80000000
+#define IMAGE_RESOURCE_DATA_IS_DIRECTORY     0x80000000
+
+typedef struct {
+    DWORD   Characteristics;
+    DWORD   TimeDateStamp;
+    WORD    MajorVersion;
+    WORD    MinorVersion;
+    WORD    NumberOfNamedEntries;
+    WORD    NumberOfIdEntries;
+} IMAGE_RESOURCE_DIRECTORY;
+
+typedef struct {
+    union {
+        struct {
+            DWORD NameOffset:31;
+            DWORD NameIsString:1;
+        };
+        DWORD   Name;
+        WORD    Id;
+    };
+    union {
+        DWORD   OffsetToData;
+        struct {
+            DWORD   OffsetToDirectory:31;
+            DWORD   DataIsDirectory:1;
+        };
+    };
+} IMAGE_RESOURCE_DIRECTORY_ENTRY;
 
 /**************************************************************************/
 
