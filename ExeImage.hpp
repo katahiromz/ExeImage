@@ -2,7 +2,7 @@
 ////////////////////////////////////////////////////////////////////////////
 
 #ifndef EXE_IMAGE_HPP
-#define EXE_IMAGE_HPP   9       // Version 9
+#define EXE_IMAGE_HPP   10      // Version 10
 
 #ifdef _WIN32
     #include <windows.h>        // Windows API
