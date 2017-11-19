@@ -2,13 +2,14 @@
 ////////////////////////////////////////////////////////////////////////////
 
 #ifndef EXE_IMAGE_HPP
-#define EXE_IMAGE_HPP   4   // Version 4
+#define EXE_IMAGE_HPP   5       // Version 5
 
 #ifdef _WIN32
     #include <windows.h>
     #include <delayimp.h>       // ImgDelayDescr
 #else
     #include "wonnt.h"
+    #include "pdelayload.h"
 #endif
 
 #include <vector>
