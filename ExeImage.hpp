@@ -166,6 +166,7 @@ protected:
     {
         return this;
     }
+
     template <typename T_TYPE>
     inline T_TYPE *drop_const(const T_TYPE *obj)
     {
