@@ -2,12 +2,14 @@
 /**************************************************************************/
 
 #ifndef WONNT_H
-#define WONNT_H     1   /* Version 1 */
+#define WONNT_H     2   /* Version 2 */
 
 /**************************************************************************/
 
 #if __cplusplus >= 201103L
     #include <cstdint>
+#elif __STDC_VERSION__ >= 199901L
+    #include <stdint.h>
 #else
     #include "pstdint.h"
 #endif
