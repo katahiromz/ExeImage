@@ -409,16 +409,20 @@ inline IMAGE_DATA_DIRECTORY *ExeImage::get_data_dir(DWORD dwIndex)
 
 inline BYTE *ExeImage::get_data(DWORD dwIndex)
 {
-    DWORD dwSize = 0;
-    return get_data(dwIndex, dwSize);
+    if (IMAGE_DATA_DIRECTORY *dir = get_data_dir(dwIndex))
+    {
+        if (dir->VirtualAddress && dir->Size)
+        {
+            return map_image<BYTE>(dir->VirtualAddress);
+        }
+    }
+    return NULL;
 }
 
 inline BYTE *ExeImage::get_data(DWORD dwIndex, DWORD& dwSize)
 {
-    IMAGE_DATA_DIRECTORY *dir = get_data_dir();
-    if (dir && 0 <= dwIndex && dwIndex < IMAGE_NUMBEROF_DIRECTORY_ENTRIES)
+    if (IMAGE_DATA_DIRECTORY *dir = get_data_dir(dwIndex))
     {
-        dir += dwIndex;
         if (dir->VirtualAddress && dir->Size)
         {
             dwSize = dir->Size;
