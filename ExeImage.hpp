@@ -78,13 +78,13 @@ public:
     DWORD number_of_sections() const;
 
     // headers
-    IMAGE_DOS_HEADER *get_dos() const;
-    IMAGE_NT_HEADERS32 *get_nt32() const;
-    IMAGE_NT_HEADERS64 *get_nt64() const;
-    IMAGE_NT_HEADERS *get_nt() const;
+    IMAGE_DOS_HEADER        *get_dos() const;
+    IMAGE_NT_HEADERS32      *get_nt32() const;
+    IMAGE_NT_HEADERS64      *get_nt64() const;
+    IMAGE_NT_HEADERS        *get_nt() const;
     IMAGE_OPTIONAL_HEADER32 *get_optional32() const;
     IMAGE_OPTIONAL_HEADER64 *get_optional64() const;
-    IMAGE_OPTIONAL_HEADER *get_optional() const;
+    IMAGE_OPTIONAL_HEADER   *get_optional() const;
 
     // data access
     IMAGE_DATA_DIRECTORY *get_data_dir() const;
@@ -133,6 +133,7 @@ public:
     void dump_nt(std::stringstream& ss);
     void dump_optional(std::stringstream& ss);
     void dump_data_dir(std::stringstream& ss);
+    void dump_section_table(std::stringstream& ss);
     void dump_import(std::stringstream& ss);
     void dump_export(std::stringstream& ss);
     void dump_delay_load(std::stringstream& ss);
@@ -770,6 +771,38 @@ inline void ExeImage::dump_nt(std::stringstream& ss)
     }
 }
 
+inline void ExeImage::dump_section_table(std::stringstream& ss)
+{
+    ss << "\n### Section Table ###\n";
+
+    if (!m_section_table)
+    {
+        ss << "Invalid section table.\n";
+        return;
+    }
+
+    for (DWORD i = 0; i < number_of_sections(); ++i)
+    {
+        ss << "\nSection #" << i << ": ";
+        IMAGE_SECTION_HEADER *header = &m_section_table[i];
+        for (int k = 0; k < 8 && header->Name[k]; ++k)
+        {
+            ss << header->Name[k];
+        }
+        ss << "\n";
+
+        EXE_IMAGE_DUMP(ss, VirtualSize, (&header->Misc));
+        EXE_IMAGE_DUMP(ss, VirtualAddress, header);
+        EXE_IMAGE_DUMP(ss, SizeOfRawData, header);
+        EXE_IMAGE_DUMP(ss, PointerToRawData, header);
+        EXE_IMAGE_DUMP(ss, PointerToRelocations, header);
+        EXE_IMAGE_DUMP(ss, PointerToLinenumbers, header);
+        EXE_IMAGE_DUMP(ss, NumberOfRelocations, header);
+        EXE_IMAGE_DUMP(ss, NumberOfLinenumbers, header);
+        EXE_IMAGE_DUMP(ss, Characteristics, header);
+    }
+}
+
 inline void ExeImage::dump_optional(std::stringstream& ss)
 {
     ss << "\n### Optional Header ###\n";
@@ -963,6 +996,7 @@ inline void ExeImage::dump_all(std::stringstream& ss)
 {
     dump_dos(ss);
     dump_nt(ss);
+    dump_section_table(ss);
     dump_import(ss);
     dump_export(ss);
     dump_delay_load(ss);
