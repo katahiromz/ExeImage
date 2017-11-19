@@ -2,7 +2,7 @@
 ////////////////////////////////////////////////////////////////////////////
 
 #ifndef EXE_IMAGE_HPP
-#define EXE_IMAGE_HPP   12      // Version 12
+#define EXE_IMAGE_HPP   13      // Version 13
 
 #ifdef _WIN32
     #include <windows.h>        // Windows API
@@ -123,33 +123,33 @@ public:
     // import
           IMAGE_IMPORT_DESCRIPTOR *get_import();
     const IMAGE_IMPORT_DESCRIPTOR *get_import() const;
-    bool get_import_dll_names(std::vector<char *>& names);
-    bool get_import_symbols(DWORD dll_index, std::vector<ImportSymbol>& symbols);
+    bool get_import_dll_names(std::vector<const char *>& names) const;
+    bool get_import_symbols(DWORD dll_index, std::vector<ImportSymbol>& symbols) const;
 
     // export
           IMAGE_EXPORT_DIRECTORY *get_export();
     const IMAGE_EXPORT_DIRECTORY *get_export() const;
-    bool get_export_symbols(std::vector<ExportSymbol>& symbols);
+    bool get_export_symbols(std::vector<ExportSymbol>& symbols) const;
 
     // delay load
           ImgDelayDescr *get_delay_load();
     const ImgDelayDescr *get_delay_load() const;
-    bool get_delay_load_entries(std::vector<ImgDelayDescr>& entries);
+    bool get_delay_load_entries(std::vector<ImgDelayDescr>& entries) const;
 
     // resource
           IMAGE_RESOURCE_DIRECTORY *get_resource();
     const IMAGE_RESOURCE_DIRECTORY *get_resource() const;
 
     // dumping
-    void dump_all(std::stringstream& ss);
-    void dump_dos(std::stringstream& ss);
-    void dump_nt(std::stringstream& ss);
-    void dump_optional(std::stringstream& ss);
-    void dump_data_dir(std::stringstream& ss);
-    void dump_section_table(std::stringstream& ss);
-    void dump_import(std::stringstream& ss);
-    void dump_export(std::stringstream& ss);
-    void dump_delay_load(std::stringstream& ss);
+    void dump_all(std::stringstream& ss) const;
+    void dump_dos(std::stringstream& ss) const;
+    void dump_nt(std::stringstream& ss) const;
+    void dump_optional(std::stringstream& ss) const;
+    void dump_data_dir(std::stringstream& ss) const;
+    void dump_section_table(std::stringstream& ss) const;
+    void dump_import(std::stringstream& ss) const;
+    void dump_export(std::stringstream& ss) const;
+    void dump_delay_load(std::stringstream& ss) const;
 
 protected:
     bool              m_is_64bit;
@@ -173,8 +173,8 @@ protected:
     }
 
     bool _do_map();
-    void _get_import_symbols32(IMAGE_IMPORT_DESCRIPTOR *desc, std::vector<ImportSymbol>& symbols);
-    void _get_import_symbols64(IMAGE_IMPORT_DESCRIPTOR *desc, std::vector<ImportSymbol>& symbols);
+    void _get_import_symbols32(const IMAGE_IMPORT_DESCRIPTOR *desc, std::vector<ImportSymbol>& symbols) const;
+    void _get_import_symbols64(const IMAGE_IMPORT_DESCRIPTOR *desc, std::vector<ImportSymbol>& symbols) const;
 };
 
 ////////////////////////////////////////////////////////////////////////////
@@ -497,9 +497,9 @@ inline const IMAGE_IMPORT_DESCRIPTOR *ExeImage::get_import() const
     return get_typed_data<IMAGE_IMPORT_DESCRIPTOR>(IMAGE_DIRECTORY_ENTRY_IMPORT);
 }
 
-inline bool ExeImage::get_import_dll_names(std::vector<char *>& names)
+inline bool ExeImage::get_import_dll_names(std::vector<const char *>& names) const
 {
-    IMAGE_IMPORT_DESCRIPTOR *pImpDesc = get_import();
+    const IMAGE_IMPORT_DESCRIPTOR *pImpDesc = get_import();
     if (!pImpDesc || !pImpDesc->OriginalFirstThunk)
         return false;
 
@@ -510,9 +510,9 @@ inline bool ExeImage::get_import_dll_names(std::vector<char *>& names)
     return true;
 }
 
-inline bool ExeImage::get_import_symbols(DWORD dll_index, std::vector<ImportSymbol>& symbols)
+inline bool ExeImage::get_import_symbols(DWORD dll_index, std::vector<ImportSymbol>& symbols) const
 {
-    IMAGE_IMPORT_DESCRIPTOR *pImpDesc = get_import();
+    const IMAGE_IMPORT_DESCRIPTOR *pImpDesc = get_import();
     if (!pImpDesc || !pImpDesc->OriginalFirstThunk)
         return false;
 
@@ -528,14 +528,16 @@ inline bool ExeImage::get_import_symbols(DWORD dll_index, std::vector<ImportSymb
 }
 
 inline void
-ExeImage::_get_import_symbols32(IMAGE_IMPORT_DESCRIPTOR *desc, std::vector<ImportSymbol>& symbols)
+ExeImage::_get_import_symbols32(const IMAGE_IMPORT_DESCRIPTOR *desc,
+                                std::vector<ImportSymbol>& symbols) const
 {
-    IMAGE_IMPORT_BY_NAME *pIBN;
-    DWORD *pIAT, *pINT;     // import address table & import name table
+    const IMAGE_IMPORT_BY_NAME *pIBN;
+    const DWORD *pIAT;      // import address table
+    const DWORD *pINT;      // import name table
 
-    pIAT = reinterpret_cast<DWORD *>(static_cast<DWORD_PTR>(desc->FirstThunk));
+    pIAT = reinterpret_cast<const DWORD *>(static_cast<DWORD_PTR>(desc->FirstThunk));
     if (desc->OriginalFirstThunk)
-        pINT = reinterpret_cast<DWORD *>(map_image<BYTE>(desc->OriginalFirstThunk));
+        pINT = reinterpret_cast<const DWORD *>(map_image<BYTE>(desc->OriginalFirstThunk));
     else
         pINT = pIAT;
 
@@ -555,9 +557,9 @@ ExeImage::_get_import_symbols32(IMAGE_IMPORT_DESCRIPTOR *desc, std::vector<Impor
         }
         else
         {
-            pIBN = reinterpret_cast<IMAGE_IMPORT_BY_NAME *>(map_image<BYTE>(pINT[k]));
+            pIBN = map_image<IMAGE_IMPORT_BY_NAME>(pINT[k]);
             symbol.wHint = pIBN->Hint;
-            symbol.pszName = reinterpret_cast<char *>(pIBN->Name);
+            symbol.pszName = reinterpret_cast<const char *>(pIBN->Name);
         }
 
         symbols.push_back(symbol);
@@ -565,12 +567,14 @@ ExeImage::_get_import_symbols32(IMAGE_IMPORT_DESCRIPTOR *desc, std::vector<Impor
 }
 
 inline void
-ExeImage::_get_import_symbols64(IMAGE_IMPORT_DESCRIPTOR *desc, std::vector<ImportSymbol>& symbols)
+ExeImage::_get_import_symbols64(const IMAGE_IMPORT_DESCRIPTOR *desc,
+                                std::vector<ImportSymbol>& symbols) const
 {
-    ULONGLONG *pIAT64, *pINT64;
-    IMAGE_IMPORT_BY_NAME *pIBN;
+    const IMAGE_IMPORT_BY_NAME *pIBN;
+    const ULONGLONG *pIAT64;
+    const ULONGLONG *pINT64;
 
-    pIAT64 = reinterpret_cast<ULONGLONG *>(static_cast<DWORD_PTR>(desc->FirstThunk));
+    pIAT64 = reinterpret_cast<const ULONGLONG *>(static_cast<DWORD_PTR>(desc->FirstThunk));
     if (desc->OriginalFirstThunk)
         pINT64 = map_image<ULONGLONG>(desc->OriginalFirstThunk);
     else
@@ -594,7 +598,7 @@ ExeImage::_get_import_symbols64(IMAGE_IMPORT_DESCRIPTOR *desc, std::vector<Impor
         {
             pIBN = map_image<IMAGE_IMPORT_BY_NAME>(DWORD(pINT64[k]));
             symbol.wHint = pIBN->Hint;
-            symbol.pszName = reinterpret_cast<char *>(pIBN->Name);
+            symbol.pszName = reinterpret_cast<const char *>(pIBN->Name);
         }
 
         symbols.push_back(symbol);
@@ -610,18 +614,18 @@ inline const IMAGE_EXPORT_DIRECTORY *ExeImage::get_export() const
     return get_typed_data<IMAGE_EXPORT_DIRECTORY>(IMAGE_DIRECTORY_ENTRY_EXPORT);
 }
 
-inline bool ExeImage::get_export_symbols(std::vector<ExportSymbol>& symbols)
+inline bool ExeImage::get_export_symbols(std::vector<ExportSymbol>& symbols) const
 {
-    IMAGE_EXPORT_DIRECTORY *dir = get_export();
+    const IMAGE_EXPORT_DIRECTORY *dir = get_export();
     if (!dir)
         return false;
 
     // export address table (EAT)
-    DWORD *pEAT = map_image<DWORD>(dir->AddressOfFunctions);
+    const DWORD *pEAT = map_image<DWORD>(dir->AddressOfFunctions);
     // export name pointer table (ENPT)
-    DWORD *pENPT = map_image<DWORD>(dir->AddressOfNames);
+    const DWORD *pENPT = map_image<DWORD>(dir->AddressOfNames);
     // export ordinal table (EOT)
-    WORD *pEOT = map_image<WORD>(dir->AddressOfNameOrdinals);
+    const WORD *pEOT = map_image<WORD>(dir->AddressOfNameOrdinals);
 
     DWORD i, k;
     WORD wOrdinal;
@@ -680,9 +684,9 @@ inline const ImgDelayDescr *ExeImage::get_delay_load() const
     return get_typed_data<ImgDelayDescr>(IMAGE_DIRECTORY_ENTRY_DELAY_IMPORT);
 }
 
-inline bool ExeImage::get_delay_load_entries(std::vector<ImgDelayDescr>& entries)
+inline bool ExeImage::get_delay_load_entries(std::vector<ImgDelayDescr>& entries) const
 {
-    ImgDelayDescr *descr = get_delay_load();
+    const ImgDelayDescr *descr = get_delay_load();
     if (!descr || !descr->rvaHmod)
         return false;
 
@@ -747,7 +751,7 @@ inline T_STRUCT *ExeImage::map_file(DWORD offset)
 
 #define EXE_IMAGE_DUMP(ss,name,parent) ss << #name ": " << parent->name << "\n"
 
-inline void ExeImage::dump_dos(std::stringstream& ss)
+inline void ExeImage::dump_dos(std::stringstream& ss) const
 {
     ss << "\n### DOS Header ###\n";
 
@@ -776,7 +780,7 @@ inline void ExeImage::dump_dos(std::stringstream& ss)
     EXE_IMAGE_DUMP(ss, e_lfanew, m_dos);
 }
 
-inline void ExeImage::dump_nt(std::stringstream& ss)
+inline void ExeImage::dump_nt(std::stringstream& ss) const
 {
     ss << "\n### NT Header ###\n";
 
@@ -789,8 +793,7 @@ inline void ExeImage::dump_nt(std::stringstream& ss)
     if (is_64bit())
     {
         ss << "NT Header is 64-bit.\n";
-
-        IMAGE_NT_HEADERS64 *nt64 = get_nt64();
+        const IMAGE_NT_HEADERS64 *nt64 = get_nt64();
 
         EXE_IMAGE_DUMP(ss, Signature, nt64);
         EXE_IMAGE_DUMP(ss, Machine, m_file);
@@ -806,7 +809,7 @@ inline void ExeImage::dump_nt(std::stringstream& ss)
     else
     {
         ss << "NT Header is 32-bit.\n";
-        IMAGE_NT_HEADERS32 *nt32 = get_nt32();
+        const IMAGE_NT_HEADERS32 *nt32 = get_nt32();
 
         EXE_IMAGE_DUMP(ss, Signature, nt32);
         EXE_IMAGE_DUMP(ss, Machine, m_file);
@@ -821,7 +824,7 @@ inline void ExeImage::dump_nt(std::stringstream& ss)
     }
 }
 
-inline void ExeImage::dump_section_table(std::stringstream& ss)
+inline void ExeImage::dump_section_table(std::stringstream& ss) const
 {
     ss << "\n### Section Table ###\n";
 
@@ -853,13 +856,13 @@ inline void ExeImage::dump_section_table(std::stringstream& ss)
     }
 }
 
-inline void ExeImage::dump_optional(std::stringstream& ss)
+inline void ExeImage::dump_optional(std::stringstream& ss) const
 {
     ss << "\n### Optional Header ###\n";
 
     if (is_64bit())
     {
-        IMAGE_OPTIONAL_HEADER64 *optional64 = get_optional64();
+        const IMAGE_OPTIONAL_HEADER64 *optional64 = get_optional64();
         if (!optional64)
         {
             ss << "Invalid NT header.\n";
@@ -899,7 +902,7 @@ inline void ExeImage::dump_optional(std::stringstream& ss)
     }
     else
     {
-        IMAGE_OPTIONAL_HEADER32 *optional32 = get_optional32();
+        const IMAGE_OPTIONAL_HEADER32 *optional32 = get_optional32();
         if (!optional32)
         {
             ss << "Invalid NT header.\n";
@@ -942,11 +945,11 @@ inline void ExeImage::dump_optional(std::stringstream& ss)
     dump_data_dir(ss);
 }
 
-inline void ExeImage::dump_data_dir(std::stringstream& ss)
+inline void ExeImage::dump_data_dir(std::stringstream& ss) const
 {
     ss << "\n### Data Directories ###\n";
 
-    IMAGE_DATA_DIRECTORY *dir = get_data_dir();
+    const IMAGE_DATA_DIRECTORY *dir = get_data_dir();
     if (!dir)
     {
         ss << "No data directories.\n";
@@ -961,11 +964,11 @@ inline void ExeImage::dump_data_dir(std::stringstream& ss)
     }
 }
 
-inline void ExeImage::dump_import(std::stringstream& ss)
+inline void ExeImage::dump_import(std::stringstream& ss) const
 {
     ss << "\n### Import ###\n";
 
-    std::vector<char *> names;
+    std::vector<const char *> names;
     if (!get_import_dll_names(names))
     {
         ss << "No import table.\n";
@@ -994,7 +997,7 @@ inline void ExeImage::dump_import(std::stringstream& ss)
     }
 }
 
-inline void ExeImage::dump_export(std::stringstream& ss)
+inline void ExeImage::dump_export(std::stringstream& ss) const
 {
     ss << "\n### Export ###\n";
 
@@ -1016,7 +1019,7 @@ inline void ExeImage::dump_export(std::stringstream& ss)
     }
 }
 
-inline void ExeImage::dump_delay_load(std::stringstream& ss)
+inline void ExeImage::dump_delay_load(std::stringstream& ss) const
 {
     ss << "\n### Delay Load ###\n";
 
@@ -1042,7 +1045,7 @@ inline void ExeImage::dump_delay_load(std::stringstream& ss)
     }
 }
 
-inline void ExeImage::dump_all(std::stringstream& ss)
+inline void ExeImage::dump_all(std::stringstream& ss) const
 {
     ss << "Filename: " << m_filename << "\n";
     dump_dos(ss);
