@@ -2,7 +2,22 @@
 /**************************************************************************/
 
 #ifndef WONNT_H
-#define WONNT_H     3   /* Version 3 */
+#define WONNT_H     4   /* Version 4 */
+
+#ifdef _WIN32
+    #include <windows.h>
+#else
+
+/**************************************************************************/
+
+#ifndef WINAPI
+    #define WINAPI      /*empty*/
+    #define WINAPIV     /*empty*/
+#endif
+
+#ifndef NTAPI
+    #define NTAPI       /*empty*/
+#endif
 
 /**************************************************************************/
 
@@ -32,6 +47,8 @@ typedef uint64_t ULONGLONG, DWORDLONG;
     typedef LONG LONG_PTR;
     typedef ULONG ULONG_PTR, DWORD_PTR;
 #endif
+
+typedef BYTE BOOLEAN;
 
 /**************************************************************************/
 
@@ -279,4 +296,5 @@ typedef struct {
 
 /**************************************************************************/
 
+#endif  /* ndef _WIN32 */
 #endif  /* ndef WONNT_H */
