@@ -2,7 +2,7 @@
 /**************************************************************************/
 
 #ifndef WONNT_H
-#define WONNT_H     2   /* Version 2 */
+#define WONNT_H     3   /* Version 3 */
 
 /**************************************************************************/
 
@@ -263,6 +263,19 @@ typedef struct {
         };
     };
 } IMAGE_RESOURCE_DIRECTORY_ENTRY;
+
+/**************************************************************************/
+
+#ifndef FIELD_OFFSET
+    #define FIELD_OFFSET(type, field) \
+        ((LONG)(LONG_PTR)&(((type *)0)->field))
+#endif
+
+#ifndef IMAGE_FIRST_SECTION
+    #define IMAGE_FIRST_SECTION(nt) ((IMAGE_SECTION_HEADER *)             \
+        ((ULONG_PTR)nt + FIELD_OFFSET(IMAGE_NT_HEADERS, OptionalHeader) + \
+         ((IMAGE_NT_HEADERS *)(nt))->FileHeader.SizeOfOptionalHeader))
+#endif
 
 /**************************************************************************/
 
