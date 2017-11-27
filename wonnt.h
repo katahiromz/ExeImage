@@ -2,7 +2,7 @@
 /**************************************************************************/
 
 #ifndef WONNT_H
-#define WONNT_H     7   /* Version 7 */
+#define WONNT_H     8   /* Version 8 */
 
 #if defined(_WIN32) && !defined(WON_WITHOUT_WIN)
     #ifndef _INC_WINDOWS
@@ -288,6 +288,16 @@ typedef struct {
 #ifndef FIELD_OFFSET
     #define FIELD_OFFSET(type, field) \
         ((LONG)(LONG_PTR)&(((type *)0)->field))
+#endif
+
+#ifndef RTL_FIELD_SIZE
+    #define RTL_FIELD_SIZE(type, field) \
+        (sizeof(((type *)0)->field))
+#endif
+
+#ifndef RTL_SIZEOF_THROUGH_FIELD
+    #define RTL_SIZEOF_THROUGH_FIELD(type, field) \
+        (FIELD_OFFSET(type, field) + RTL_FIELD_SIZE(type, field))
 #endif
 
 #ifndef IMAGE_FIRST_SECTION
