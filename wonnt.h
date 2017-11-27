@@ -2,10 +2,12 @@
 /**************************************************************************/
 
 #ifndef WONNT_H
-#define WONNT_H     4   /* Version 4 */
+#define WONNT_H     5   /* Version 5 */
 
 #ifdef _WIN32
-    #include <windows.h>
+    #ifndef _INC_WINDOWS
+        #include <windows.h>
+    #endif
 #else
 
 /**************************************************************************/
