@@ -2,7 +2,7 @@
 ////////////////////////////////////////////////////////////////////////////
 
 #ifndef EXE_IMAGE_HPP
-#define EXE_IMAGE_HPP   14      // Version 14
+#define EXE_IMAGE_HPP   15      // Version 15
 
 #ifdef _WIN32
     #include <windows.h>        // Windows API
@@ -67,6 +67,7 @@ public:
     virtual ~ExeImage();
 
     bool load(const char *filename);
+    bool save(const char *filename) const;
     void unload();
 
     // attributes
@@ -151,6 +152,9 @@ public:
     void dump_export(std::stringstream& ss) const;
     void dump_delay_load(std::stringstream& ss) const;
 
+    bool do_map();
+    bool do_reverse_map();
+
 protected:
     bool              m_is_64bit;
     std::string       m_filename;
@@ -173,7 +177,6 @@ protected:
         return const_cast<T_TYPE *>(obj);
     }
 
-    bool _do_map();
     void _get_import_symbols32(const IMAGE_IMPORT_DESCRIPTOR *desc, std::vector<ImportSymbol>& symbols) const;
     void _get_import_symbols64(const IMAGE_IMPORT_DESCRIPTOR *desc, std::vector<ImportSymbol>& symbols) const;
 };
@@ -228,7 +231,7 @@ inline bool ExeImage::load(const char *filename)
 
     if (ok)
     {
-        ok = _do_map();
+        ok = do_map();
     }
     if (ok)
     {
@@ -237,11 +240,32 @@ inline bool ExeImage::load(const char *filename)
     return ok;
 }
 
+inline bool ExeImage::save(const char *filename) const
+{
+    DWORD size = size_of_file();
+    const BYTE *contents = map_file<BYTE>(0);
+
+    using namespace std;
+    FILE *fp = fopen(filename, "wb");
+    if (fp)
+    {
+        if (!fwrite(contents, size, 1, fp))
+        {
+            fclose(fp);
+            remove(filename);
+            return false;
+        }
+        fclose(fp);
+        return true;
+    }
+    return false;
+}
+
 inline ExeImage::~ExeImage()
 {
 }
 
-inline bool ExeImage::_do_map()
+inline bool ExeImage::do_map()
 {
     IMAGE_DOS_HEADER *dos = map_file<IMAGE_DOS_HEADER>(0);
     if (dos && dos->e_magic == IMAGE_DOS_SIGNATURE && dos->e_lfanew != 0)
@@ -287,6 +311,25 @@ inline bool ExeImage::_do_map()
         {
             memcpy(&m_loaded_image[entry->VirtualAddress],
                    &m_file_image[entry->PointerToRawData],
+                   entry->SizeOfRawData);
+        }
+    }
+
+    return true;
+}
+
+inline bool ExeImage::do_reverse_map()
+{
+    if (!is_loaded())
+        return false;
+
+    for (DWORD i = 0; i < m_file->NumberOfSections; ++i)
+    {
+        IMAGE_SECTION_HEADER *entry = &m_section_table[i];
+        if (entry->PointerToRawData)
+        {
+            memcpy(&m_file_image[entry->PointerToRawData],
+                   &m_loaded_image[entry->VirtualAddress],
                    entry->SizeOfRawData);
         }
     }
