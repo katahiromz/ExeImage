@@ -2,7 +2,7 @@
 ////////////////////////////////////////////////////////////////////////////
 
 #ifndef EXE_IMAGE_HPP
-#define EXE_IMAGE_HPP   17      // Version 17
+#define EXE_IMAGE_HPP   18      // Version 18
 
 #ifdef _WIN32
     #include <windows.h>        // Windows API
@@ -69,6 +69,12 @@ public:
     bool load(const char *filename);
     bool save(const char *filename) const;
     void unload();
+
+#ifdef UNICODE
+    ExeImage(const wchar_t *filename);
+    bool load(const wchar_t *filename);
+    bool save(const wchar_t *filename) const;
+#endif
 
     // attributes
     bool is_loaded() const;
@@ -260,6 +266,67 @@ inline bool ExeImage::save(const char *filename) const
     }
     return false;
 }
+
+#ifdef UNICODE
+    inline ExeImage::ExeImage(const wchar_t *filename) :
+        m_is_64bit(false), m_dos(NULL), m_nt(NULL), m_file(NULL),
+        m_section_table(NULL), m_data_dir(NULL)
+    {
+        load(filename);
+    }
+
+    inline bool ExeImage::load(const wchar_t *filename)
+    {
+        unload();
+
+        using namespace std;
+        struct stat st;
+        if (stat(filename, &st) != 0)
+            return false;
+
+        bool ok = false;
+        if (FILE *fp = _wfopen(filename, L"rb"))
+        {
+            m_file_image.resize(st.st_size);
+            if (fread(&m_file_image[0], st.st_size, 1, fp))
+            {
+                ok = true;
+            }
+            fclose(fp);
+        }
+
+        if (ok)
+        {
+            ok = do_map();
+        }
+        if (ok)
+        {
+            m_filename = filename;
+        }
+        return ok;
+    }
+
+    inline bool ExeImage::save(const wchar_t *filename) const
+    {
+        DWORD size = size_of_file();
+        const BYTE *contents = map_file<BYTE>(0);
+
+        using namespace std;
+        FILE *fp = _wfopen(filename, L"wb");
+        if (fp)
+        {
+            if (!fwrite(contents, size, 1, fp))
+            {
+                fclose(fp);
+                remove(filename);
+                return false;
+            }
+            fclose(fp);
+            return true;
+        }
+        return false;
+    }
+#endif  // def UNICODE
 
 inline ExeImage::~ExeImage()
 {
