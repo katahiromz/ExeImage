@@ -2,7 +2,7 @@
 ////////////////////////////////////////////////////////////////////////////
 
 #ifndef EXE_IMAGE_HPP
-#define EXE_IMAGE_HPP   15      // Version 15
+#define EXE_IMAGE_HPP   17      // Version 17
 
 #ifdef _WIN32
     #include <windows.h>        // Windows API
@@ -432,7 +432,7 @@ inline const IMAGE_DATA_DIRECTORY *ExeImage::get_data_dir(DWORD dwIndex) const
 {
     if (is_loaded() && m_data_dir)
     {
-        if (0 <= dwIndex && dwIndex < IMAGE_NUMBEROF_DIRECTORY_ENTRIES)
+        if (dwIndex < IMAGE_NUMBEROF_DIRECTORY_ENTRIES)
             return &m_data_dir[dwIndex];
     }
     return NULL;
