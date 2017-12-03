@@ -2,7 +2,7 @@
 /**************************************************************************/
 
 #ifndef WONNT_H
-#define WONNT_H     8   /* Version 8 */
+#define WONNT_H     9   /* Version 9 */
 
 #if defined(_WIN32) && !defined(WON_WITHOUT_WIN)
     #ifndef _INC_WINDOWS
@@ -41,6 +41,9 @@ typedef int32_t INT, BOOL;
 typedef uint32_t UINT;
 typedef int64_t LONGLONG;
 typedef uint64_t ULONGLONG, DWORDLONG;
+
+/* NOTE: Please think the case of sizeof(wchar_t) != 2. */
+typedef wchar_t WCHAR;
 
 #ifdef _WIN64
     typedef int64_t LONG_PTR;
