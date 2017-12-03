@@ -38,20 +38,30 @@ set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/build)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+# statically link
+set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     # using Clang
-    SET(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
-    SET(BUILD_SHARED_LIBRARIES OFF)
-    SET(CMAKE_EXE_LINKER_FLAGS "-static")
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    SET(CMAKE_C_FLAGS "-static")
+    SET(CMAKE_CXX_FLAGS "-static")
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     # using GCC
-    SET(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
-    SET(BUILD_SHARED_LIBRARIES OFF)
-    SET(CMAKE_EXE_LINKER_FLAGS "-static")
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
-    # using Intel C++
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-    # using Visual Studio C++
+    SET(CMAKE_C_FLAGS "-static -static-libgcc -static-libstdc++")
+    SET(CMAKE_CXX_FLAGS "-static -static-libgcc -static-libstdc++")
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    # replace "/MD" with "/MT" (building without runtime DLLs)
+    set(CompilerFlags
+        CMAKE_C_FLAGS
+        CMAKE_C_FLAGS_DEBUG
+        CMAKE_C_FLAGS_RELEASE
+        CMAKE_C_FLAGS_RELWITHDEBINFO
+        CMAKE_CXX_FLAGS
+        CMAKE_CXX_FLAGS_DEBUG
+        CMAKE_CXX_FLAGS_RELEASE
+        CMAKE_CXX_FLAGS_RELWITHDEBINFO)
+    foreach(CompilerFlags ${CompilerFlags})
+        string(REPLACE "/MD" "/MT" ${CompilerFlags} "${${CompilerFlags}}")
+    endforeach()
 endif()
 
 ##############################################################################
