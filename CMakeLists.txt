@@ -42,12 +42,12 @@ set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     # using Clang
-    SET(CMAKE_C_FLAGS "-static")
-    SET(CMAKE_CXX_FLAGS "-static")
+    set(CMAKE_C_FLAGS "-static")
+    set(CMAKE_CXX_FLAGS "-static")
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     # using GCC
-    SET(CMAKE_C_FLAGS "-static -static-libgcc -static-libstdc++")
-    SET(CMAKE_CXX_FLAGS "-static -static-libgcc -static-libstdc++")
+    set(CMAKE_C_FLAGS "-static -static-libgcc -static-libstdc++")
+    set(CMAKE_CXX_FLAGS "-static -static-libgcc -static-libstdc++")
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     # replace "/MD" with "/MT" (building without runtime DLLs)
     set(CompilerFlags
