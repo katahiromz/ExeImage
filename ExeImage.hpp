@@ -2,14 +2,17 @@
 ////////////////////////////////////////////////////////////////////////////
 
 #ifndef EXE_IMAGE_HPP
-#define EXE_IMAGE_HPP   18      // Version 18
+#define EXE_IMAGE_HPP   19      // Version 19
 
-#ifdef _WIN32
-    #include <windows.h>        // Windows API
-    #include <delayimp.h>       // for ImgDelayDescr
-#else
+#ifndef _CRT_SECURE_NO_WARNINGS
+    #define _CRT_SECURE_NO_WARNINGS
+#endif
+#if !defined(_WIN32) || (defined(_WONVER) && _WONVER == 0)
     #include "wonnt.h"          // Wonders API
     #include "pdelayload.h"     // for ImgDelayDescr
+#else
+    #include <windows.h>        // Windows API
+    #include <delayimp.h>       // for ImgDelayDescr
 #endif
 
 #include <vector>               // for std::vector
@@ -18,8 +21,8 @@
 #include <cstdio>               // for fopen, fclose, FILE, ...
 #include <cstring>              // for memcpy
 #include <cassert>              // for assert macro
-#include <sys/types.h>          // for stat
-#include <sys/stat.h>           // for stat
+#include <sys/types.h>          // for _stat
+#include <sys/stat.h>           // for _stat
 
 namespace codereverse
 {
@@ -163,7 +166,6 @@ public:
 
 protected:
     bool              m_is_64bit;
-    std::string       m_filename;
     std::vector<BYTE> m_file_image;
     std::vector<BYTE> m_loaded_image;
     IMAGE_DOS_HEADER *m_dos;
@@ -220,8 +222,8 @@ inline bool ExeImage::load(const char *filename)
     unload();
 
     using namespace std;
-    struct stat st;
-    if (stat(filename, &st) != 0)
+    struct _stat st;
+    if (_stat(filename, &st) != 0)
         return false;
 
     bool ok = false;
@@ -238,10 +240,6 @@ inline bool ExeImage::load(const char *filename)
     if (ok)
     {
         ok = do_map();
-    }
-    if (ok)
-    {
-        m_filename = filename;
     }
     return ok;
 }
@@ -280,8 +278,8 @@ inline bool ExeImage::save(const char *filename) const
         unload();
 
         using namespace std;
-        struct stat st;
-        if (stat(filename, &st) != 0)
+        struct _stat st;
+        if (_wstat(filename, &st) != 0)
             return false;
 
         bool ok = false;
@@ -299,10 +297,6 @@ inline bool ExeImage::save(const char *filename) const
         {
             ok = do_map();
         }
-        if (ok)
-        {
-            m_filename = filename;
-        }
         return ok;
     }
 
@@ -318,7 +312,7 @@ inline bool ExeImage::save(const char *filename) const
             if (!fwrite(contents, size, 1, fp))
             {
                 fclose(fp);
-                remove(filename);
+                _wremove(filename);
                 return false;
             }
             fclose(fp);
@@ -1151,7 +1145,6 @@ inline void ExeImage::dump_delay_load(std::stringstream& ss) const
 
 inline void ExeImage::dump_all(std::stringstream& ss) const
 {
-    ss << "Filename: " << m_filename << "\n";
     dump_dos(ss);
     dump_nt(ss);
     dump_section_table(ss);

@@ -2,9 +2,9 @@
 /**************************************************************************/
 
 #ifndef WONNT_H
-#define WONNT_H     9   /* Version 9 */
+#define WONNT_H     11  /* Version 11 */
 
-#if defined(_WIN32) && !defined(WON_WITHOUT_WIN)
+#if defined(_WIN32) && !defined(_WONVER)
     #ifndef _INC_WINDOWS
         #include <windows.h>
     #endif
@@ -31,7 +31,8 @@
     #include "pstdint.h"
 #endif
 
-typedef int8_t CHAR;
+typedef char CHAR;
+typedef signed char SCHAR;
 typedef uint8_t BYTE, UCHAR;
 typedef int16_t SHORT;
 typedef uint16_t WORD, USHORT;
@@ -54,6 +55,41 @@ typedef wchar_t WCHAR;
 #endif
 
 typedef BYTE BOOLEAN;
+
+#ifdef UNICODE
+    typedef WCHAR TCHAR;
+#else
+    typedef char TCHAR;
+#endif
+
+typedef INT HFILE;
+
+C_ASSERT(sizeof(CHAR) == 1);
+C_ASSERT(sizeof(SCHAR) == 1);
+C_ASSERT(sizeof(UCHAR) == 1);
+C_ASSERT(sizeof(BYTE) == 1);
+
+C_ASSERT(sizeof(SHORT) == 2);
+C_ASSERT(sizeof(USHORT) == 2);
+C_ASSERT(sizeof(WORD) == 2);
+
+C_ASSERT(sizeof(LONG) == 4);
+C_ASSERT(sizeof(ULONG) == 4);
+C_ASSERT(sizeof(DWORD) == 4);
+
+C_ASSERT(sizeof(LONGLONG) == 8);
+C_ASSERT(sizeof(ULONGLONG) == 8);
+C_ASSERT(sizeof(DWORDLONG) == 8);
+
+C_ASSERT(sizeof(INT) == sizeof(int));
+C_ASSERT(sizeof(UINT) == sizeof(unsigned int));
+
+C_ASSERT(sizeof(BOOL) == 4);
+C_ASSERT(sizeof(BOOLEAN) == 1);
+
+C_ASSERT(sizeof(HANDLE) == sizeof(void *));
+
+C_ASSERT(sizeof(WCHAR) == sizeof(wchar_t));
 
 /**************************************************************************/
 
