@@ -2,12 +2,11 @@
 /**************************************************************************/
 
 #ifndef WONNT_H
-#define WONNT_H     11  /* Version 11 */
+#define WONNT_H     12  /* Version 12 */
 
+#ifndef _INC_WINDOWS
 #if defined(_WIN32) && !defined(_WONVER)
-    #ifndef _INC_WINDOWS
-        #include <windows.h>
-    #endif
+    #include <windows.h>
 #else
 
 /**************************************************************************/
@@ -63,6 +62,8 @@ typedef BYTE BOOLEAN;
 #endif
 
 typedef INT HFILE;
+
+#define C_ASSERT(x)  typedef char WONNT_STATIC_ASSERT_##__LINE__[(x) ? 1 : -1]
 
 C_ASSERT(sizeof(CHAR) == 1);
 C_ASSERT(sizeof(SCHAR) == 1);
@@ -347,5 +348,6 @@ typedef struct {
 
 /**************************************************************************/
 
-#endif  /* ndef _WIN32 */
+#endif  /* !(defined(_WIN32) && !defined(_WONVER)) */
+#endif  /* ndef _INC_WINDOWS */
 #endif  /* ndef WONNT_H */
